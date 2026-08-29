@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Chat สุ่มคนคุย</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- ดึง Supabase มาใช้งาน -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ ระบบสุ่มคนคุย (Voice Chat)</h1>
+        
+        <!-- กล่องแสดงข้อมูลตัวเรา -->
+        <div id="userInfo" class="user-info">
+            <span class="loading">กำลังเชื่อมต่อระบบ...</span>
+        </div>
+
+        <!-- กล่องควบคุมการคุย -->
+        <div class="card">
+            <p id="status">สถานะ: รอคำสั่ง</p>
+            <button id="startBtn" class="btn-primary">1. เปิดไมค์ & เริ่มหาคนคุย</button>
+            <button id="skipBtn" class="btn-danger" style="display: none;">⏭️ ปัด / เปลี่ยนคน</button>
+            <button id="stopBtn" class="btn-secondary" style="display: none;">⏹️ เลิกคุย</button>
+        </div>
+        
+        <!-- ลำโพงล่องหน สำหรับเล่นเสียงอีกฝั่ง -->
+        <audio id="remoteAudio" autoplay></audio>
+    </div>
+
+    <!-- ดึงไฟล์โค้ดระบบมาทำงาน -->
+    <script src="script.js"></script>
+</body>
+</html>
