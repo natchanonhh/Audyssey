@@ -11,20 +11,20 @@
         
         body {
             background-color: #050505; color: #f0f0f0; height: 100vh; overflow: hidden;
-            user-select: none; 
+            user-select: none; /* ป้องกันการคลุมดำตอนปัดหน้าจอ */
         }
 
         .noise-bg {
             background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.06"/%3E%3C/svg%3E');
         }
 
-        /* --- หน้า Home Screen --- */
+        /* --- หน้า Home Screen (หน้า 1) --- */
         #homeScreen {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 100vh; padding: 20px; text-align: center;
         }
         
-        .logo { font-size: 46px; font-weight: 700; margin-bottom: 35px; letter-spacing: 0.5px; color: #fff; }
+        .logo-home { font-size: 48px; font-weight: 700; margin-bottom: 35px; letter-spacing: 0.5px; color: #fff; }
         
         .btn-main {
             width: 100%; max-width: 360px; padding: 18px; margin: 8px 0;
@@ -37,7 +37,7 @@
         .btn-main:disabled { opacity: 0.3; cursor: not-allowed; }
 
         .online-count { 
-            font-size: 14px; margin-top: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; color: #aaa;
+            font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; color: #aaa;
         }
         .dot { width: 10px; height: 10px; background-color: #39ff14; border-radius: 50%; box-shadow: 0 0 8px #39ff14; }
 
@@ -45,43 +45,59 @@
         #chatScreen { display: none; width: 100vw; height: 100vh; position: relative; }
         .split-view { display: flex; width: 100%; height: 100%; }
         
+        /* Panel ซ้าย (ฝั่งคู่สนทนา / ตั้งค่า) */
         .panel-left { 
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
-            border-right: 1px solid rgba(255,255,255,0.1);
+            flex: 1; position: relative; border-right: 1px solid rgba(255,255,255,0.15);
         }
 
+        /* Panel ขวา (ฝั่งเรา) */
         .panel-right { 
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
             background-color: #000;
         }
 
-        .btn-settings { position: absolute; top: 25px; right: 25px; padding: 8px 18px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: #ddd; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s;}
+        .full-size { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+        .flex-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        /* UI สำหรับหน้า 2 (ฝั่งซ้ายตอนยังไม่เริ่มคุย) */
+        .logo-huge { font-size: 48px; font-weight: 700; margin-bottom: 15px; color: #fff; }
+        .btn-settings { position: absolute; top: 30px; right: 30px; padding: 8px 20px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #ddd; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s;}
         .btn-settings:hover { background: rgba(255, 255, 255, 0.15); color: #fff;}
-        
-        .profile-bar { position: absolute; bottom: 35px; display: flex; gap: 15px; width: 100%; justify-content: center; padding: 0 20px; }
-        .btn-info { padding: 12px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; flex: 1; max-width: 180px; justify-content: center; transition: 0.2s;}
+        .profile-bar { position: absolute; bottom: 40px; display: flex; gap: 20px; width: 100%; justify-content: center; padding: 0 20px; }
+        .btn-info { padding: 14px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; flex: 1; max-width: 180px; justify-content: center; transition: 0.2s;}
         .btn-info:hover { background: rgba(255, 255, 255, 0.1); color: #fff;}
 
-        .waveform-container { width: 100%; max-width: 500px; height: 150px; display: flex; justify-content: center; align-items: center; }
-        .waveform { width: 100%; height: 100%; }
+        /* UI ฝั่งซ้ายตอนกำลังคุย (Matched) */
+        .chat-logo { position: absolute; top: 30px; left: 30px; font-size: 24px; font-weight: 700; color: #fff;}
+        .partner-info { position: absolute; bottom: 40px; left: 30px; text-align: left; }
+        .status-text { font-size: 16px; color: #fff; margin-bottom: 8px; font-weight: 500; }
+        .country-text { font-size: 14px; color: #ccc; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;}
+        .btn-report { padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid #444; color: #aaa; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s;}
+        .btn-report:hover { background: rgba(220, 53, 69, 0.15); border-color: #dc3545; color: #dc3545; }
 
-        .status-container { position: absolute; top: 35px; text-align: center; width: 100%; }
-        .status-text { font-size: 13px; color: #888; font-weight: 500; letter-spacing: 0.5px; }
+        /* คลื่นเสียง */
+        .waveform-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: absolute; top: 0; left: 0; pointer-events: none;}
+        .waveform { width: 80%; height: 200px; max-width: 500px; }
 
-        .my-controls { position: absolute; bottom: 35px; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 40px; }
-        .warning-text { font-size: 11px; color: #666; text-align: center; max-width: 70%; line-height: 1.6; margin: 0 auto; font-weight: 400;}
+        /* --- แก้ไข UI ฝั่งขวา (ตัวเรา) ตามภาพใหม่ --- */
+        .my-controls { position: absolute; bottom: 35px; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 40px; z-index: 10;}
+        .warning-text { font-size: 13px; color: #777; text-align: center; width: 100%; line-height: 1.6; margin-bottom: 20px; font-weight: 400;}
         
+        .bottom-actions { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .emoji-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        
+        .emoji-btn { font-size: 24px; background: none; border: none; cursor: pointer; transition: transform 0.2s; opacity: 0.8;}
+        .emoji-btn:hover { transform: scale(1.2); opacity: 1;}
+        .emoji-btn:active { transform: scale(1.5); }
+
         .mic-btn { 
             background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            width: 50px; height: 50px; border-radius: 50%; transition: all 0.2s;
+            width: 45px; height: 45px; transition: all 0.2s; margin-left: 10px;
         }
-        .mic-btn svg { width: 26px; height: 26px; fill: #ddd; transition: 0.2s;}
-        .mic-btn:hover svg { fill: #fff; }
-        .mic-off svg { fill: #dc3545; }
+        .mic-btn svg { width: 28px; height: 28px; fill: #fff; transition: 0.2s;}
+        .mic-off svg { fill: #555; }
 
-        .swipe-hint { position: absolute; top: 65px; right: 25px; font-size: 12px; color: #777; display: flex; align-items: center; gap: 6px; opacity: 0.8; font-weight: 500;}
-        .btn-report { position: absolute; top: 25px; left: 25px; padding: 6px 14px; background: transparent; border: 1px solid #333; color: #666; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s;}
-        .btn-report:hover { background: rgba(220, 53, 69, 0.1); border-color: #dc3545; color: #dc3545; }
+        .swipe-hint { position: absolute; top: 40px; text-align: center; width: 100%; font-size: 13px; color: #777; display: flex; justify-content: center; align-items: center; gap: 8px; opacity: 0.8; font-weight: 500; pointer-events: none;}
 
         /* --- Modal (Popup) --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(5px);}
@@ -93,21 +109,32 @@
         .modal-btn { width: 100%; padding: 14px; background: #eee; color: #000; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; transition: 0.2s;}
         .modal-btn:hover { background: #fff; }
 
+        /* Responsive มือถือ */
         @media (max-width: 768px) {
             .split-view { flex-direction: column; }
             .panel-left, .panel-right { height: 50%; border-right: none; }
-            .panel-left { border-bottom: 1px solid rgba(255,255,255,0.1); }
-            .my-controls { padding: 0 25px; bottom: 25px; }
-            .profile-bar { bottom: 25px; padding: 0 15px; }
-            .warning-text { font-size: 10px; max-width: 75%; }
+            .panel-left { border-bottom: 1px solid rgba(255,255,255,0.2); }
+            
+            .my-controls { padding: 0 15px; bottom: 15px; }
+            .bottom-actions { justify-content: center; flex-direction: column; gap: 10px; }
+            .emoji-group { justify-content: center; gap: 10px; }
+            .mic-btn { margin-left: 0; }
+            
+            .partner-info { bottom: 15px; left: 15px; }
+            .warning-text { font-size: 11px; margin-bottom: 10px; }
+            .waveform { height: 120px; }
+            .profile-bar { bottom: 20px; padding: 0 10px; }
         }
+        
+        .floating-emoji { position: absolute; font-size: 40px; pointer-events: none; animation: floatUp 2s ease-out forwards; z-index: 50; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-150px) scale(1.5); } }
     </style>
 </head>
 <body>
 
-    <!-- หน้าแรก (Home Screen) -->
+    <!-- ================= หน้าแรก (Home Screen) ================= -->
     <div id="homeScreen" class="noise-bg">
-        <div class="logo">Audyssey.so</div>
+        <div class="logo-home">Audyssey.so</div>
         
         <button id="startBtn" class="btn-main" onclick="enterChatScreen()" disabled>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -118,90 +145,115 @@
             สนทนาแบบกลุ่ม
         </button>
 
-        <div class="online-count">
+        <div class="online-count" style="margin-top: 40px;">
             <div class="dot"></div>
             <span id="onlineCountText">กำลังเชื่อมต่อระบบ...</span>
         </div>
     </div>
 
-    <!-- หน้าสนทนา (Chat Screen) -->
+    <!-- ================= หน้าสนทนา (Chat Screen) ================= -->
     <div id="chatScreen">
         <div class="split-view">
-            <!-- ซ้าย -->
+            
+            <!-- Panel ซ้าย (ฝั่งคู่สนทนา / หน้า 2) -->
             <div class="panel-left noise-bg">
-                <div class="logo" style="font-size: 34px; margin-bottom: 10px;">Audyssey.so</div>
-                <div class="online-count" style="margin-top: 0; margin-bottom: 30px;">
-                    <div class="dot"></div>
-                    <span id="innerOnlineCountText">กำลังเชื่อมต่อ...</span>
-                </div>
-                <button class="btn-settings" onclick="openModal('settingsModal')">ปรับแก้</button>
                 
-                <div class="profile-bar">
-                    <button class="btn-info" onclick="openModal('settingsModal')">ประเทศ <span id="myCountryFlag">🇹🇭</span></button>
-                    <button class="btn-info" onclick="openModal('genderModal')">เพศ <span id="myGenderText" style="font-size:12px;">(ไม่ระบุ)</span></button>
+                <!-- 1. หน้า 2 (สถานะตอนรอเริ่ม / Idle) -->
+                <div id="leftIdleUi" class="full-size flex-center">
+                    <button class="btn-settings" onclick="openModal('settingsModal')">ปรับแก้</button>
+                    <div class="logo-huge">Audyssey.so</div>
+                    <div class="online-count">
+                        <div class="dot"></div>
+                        <span id="innerOnlineCountText">กำลังเชื่อมต่อ...</span>
+                    </div>
+                    <div class="profile-bar">
+                        <button class="btn-info" onclick="openModal('settingsModal')">ประเทศ <span id="myCountryFlag">🇹🇭</span></button>
+                        <button class="btn-info" onclick="openModal('genderModal')">ฉัน <span id="myGenderText" style="font-size:16px;">🧑</span></button>
+                    </div>
                 </div>
+
+                <!-- 2. หน้ากำลังสนทนา (Matched) -->
+                <div id="leftMatchedUi" class="full-size" style="display: none;">
+                    <div class="chat-logo">Audyssey.so</div>
+                    <div class="waveform-container">
+                        <canvas id="remoteWaveform" class="waveform"></canvas>
+                    </div>
+                    <div class="partner-info">
+                        <p class="status-text" id="chatStatusText">การเชื่อมต่อถูกตั้งขึ้นแล้ว</p>
+                        <p class="country-text" id="partnerCountryText">อินโดนีเซีย 🇮🇩</p>
+                        <button class="btn-report" onclick="reportUser()" id="reportBtn">รายงานบุคคล</button>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- ขวา -->
+            <!-- Panel ขวา (ฝั่งตัวเรา) -->
             <div class="panel-right">
-                <button class="btn-report" onclick="reportUser()" style="display:none;" id="reportBtn">รายงานบุคคล</button>
                 <div class="swipe-hint" id="swipeHint">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    ปัดซ้ายเพื่อสนทนา
-                </div>
-                
-                <div class="status-container">
-                    <p class="status-text" id="chatStatusText">ระบบพร้อมทำงาน ปัดหน้าจอไปทางซ้ายเพื่อเริ่มต้น</p>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    ปัดซ้าย: หาคนคุย | ปัดขวา: หยุดและกลับ
                 </div>
 
                 <div class="waveform-container">
-                    <canvas id="mainWaveform" class="waveform"></canvas>
+                    <canvas id="localWaveform" class="waveform"></canvas>
                 </div>
                 
                 <div class="my-controls">
-                    <div style="width: 50px;"></div> 
+                    <!-- ข้อความเตือน (ย้ายมาอยู่บนสุดและกางเต็มกว้าง) -->
                     <p class="warning-text">โดยการใช้เสียงแชทนี้ คุณยอมรับกฎของเรา ผู้ฝ่าฝืนกฎจะถูกแบน<br>พยายามให้มีการสนทนาของคุณปรากฏในช่องสนทนานี้</p>
                     
-                    <button id="micToggleBtn" class="mic-btn mic-off" onclick="toggleMic()" title="คลิกเพื่ออนุญาตไมโครโฟน">
-                        <svg id="micIcon" viewBox="0 0 24 24">
-                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                        </svg>
-                    </button>
+                    <!-- ส่วนอีโมจิและไมโครโฟน -->
+                    <div class="bottom-actions">
+                        <div class="emoji-group">
+                            <button class="emoji-btn" onclick="sendEmoji('💭')">💭</button>
+                            <button class="emoji-btn" onclick="sendEmoji('❤️')">❤️</button>
+                            <button class="emoji-btn" onclick="sendEmoji('😂')">😂</button>
+                            <button class="emoji-btn" onclick="sendEmoji('😊')">😊</button>
+                            <button class="emoji-btn" onclick="sendEmoji('👍')">👍</button>
+                            <button class="emoji-btn" onclick="sendEmoji('🥰')">🥰</button>
+                            <button class="emoji-btn" onclick="sendEmoji('👌')">👌</button>
+                        </div>
+
+                        <button id="micToggleBtn" class="mic-btn mic-off" onclick="toggleMic()" title="คลิกเพื่ออนุญาตไมโครโฟน">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
+
         </div>
         <audio id="remoteAudio" autoplay></audio>
     </div>
 
-    <!-- Modals -->
+    <!-- ================= Modals ================= -->
     <div id="genderModal" class="modal">
         <div class="modal-content">
-            <h2>ข้อมูลส่วนบุคคล</h2>
-            <label>ระบุเพศเพื่อการแสดงผลที่แม่นยำ</label>
+            <h2>โปรไฟล์ของคุณ</h2>
+            <label>ระบุเพศของคุณ</label>
             <select id="myGenderSelect">
-                <option value="unspecified">ไม่ระบุ</option>
-                <option value="male">ชาย</option>
-                <option value="female">หญิง</option>
+                <option value="unspecified">ไม่ระบุ 🧑</option>
+                <option value="male">ชาย 👨</option>
+                <option value="female">หญิง 👩</option>
             </select>
-            <button class="modal-btn" onclick="saveMyProfile()">ยืนยัน</button>
+            <button class="modal-btn" onclick="saveMyProfile()">บันทึก</button>
         </div>
     </div>
 
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <h2>ปรับแก้การค้นหา</h2>
-            
-            <label>ความต้องการคู่สนทนา (เพศ)</label>
+            <label>ต้องการสนทนากับ (เพศ)</label>
             <select id="prefGenderSelect">
-                <option value="all">ทุกเพศ (ค่าเริ่มต้น)</option>
+                <option value="all">ทุกเพศ</option>
                 <option value="male">เฉพาะผู้ชาย</option>
                 <option value="female">เฉพาะผู้หญิง</option>
             </select>
 
-            <label>ความต้องการคู่สนทนา (ภูมิภาค/ประเทศ)</label>
+            <label>ต้องการสนทนากับ (ประเทศ)</label>
             <select id="prefCountrySelect">
-                <option value="all">ทั่วโลก 🌍</option>
-                <!-- ตัวเลือกประเทศ 195 ประเทศจะถูกโหลดลงตรงนี้อัตโนมัติ -->
+                <option value="all">ทั่วโลก</option>
             </select>
             
             <button class="modal-btn" onclick="saveSettings()">บันทึกการตั้งค่า</button>
@@ -209,214 +261,117 @@
     </div>
 
     <script>
-        // --- 1. ข้อมูล 195 ประเทศ (แบ่งตาม 6 ทวีปหลัก) ---
+        // --- 1. ข้อมูล 195 ประเทศ (แบ่งตามทวีปหลัก) ---
         const countryGroups = {
             "ทวีปเอเชีย (Asia)": [
-                { flag: "🇰🇭", name: "กัมพูชา", val: "Cambodia" },
-                { flag: "🇵🇭", name: "ฟิลิปปินส์", val: "Philippines" },
-                { flag: "🇶🇦", name: "กาตาร์", val: "Qatar" },
-                { flag: "🇧🇹", name: "ภูฏาน", val: "Bhutan" },
-                { flag: "🇰🇷", name: "เกาหลีใต้", val: "South Korea" },
-                { flag: "🇲🇳", name: "มองโกเลีย", val: "Mongolia" },
-                { flag: "🇰🇵", name: "เกาหลีเหนือ", val: "North Korea" },
-                { flag: "🇲🇻", name: "มัลดีฟส์", val: "Maldives" },
-                { flag: "🇰🇿", name: "คาซัคสถาน", val: "Kazakhstan" },
-                { flag: "🇲🇾", name: "มาเลเซีย", val: "Malaysia" },
-                { flag: "🇰🇬", name: "คีร์กีซสถาน", val: "Kyrgyzstan" },
-                { flag: "🇾🇪", name: "เยเมน", val: "Yemen" },
-                { flag: "🇰🇼", name: "คูเวต", val: "Kuwait" },
-                { flag: "🇱🇦", name: "ลาว", val: "Laos" },
-                { flag: "🇬🇪", name: "จอร์เจีย", val: "Georgia" },
-                { flag: "🇱🇧", name: "เลบานอน", val: "Lebanon" },
-                { flag: "🇯🇴", name: "จอร์แดน", val: "Jordan" },
-                { flag: "🇻🇳", name: "เวียดนาม", val: "Vietnam" },
-                { flag: "🇨🇳", name: "จีน", val: "China" },
-                { flag: "🇱🇰", name: "ศรีลังกา", val: "Sri Lanka" },
-                { flag: "🇸🇦", name: "ซาอุดีอาระเบีย", val: "Saudi Arabia" },
-                { flag: "🇦🇪", name: "สหรัฐอาหรับเอมิเรตส์", val: "United Arab Emirates" },
-                { flag: "🇸🇾", name: "ซีเรีย", val: "Syria" },
-                { flag: "🇸🇬", name: "สิงคโปร์", val: "Singapore" },
-                { flag: "🇨🇾", name: "ไซปรัส", val: "Cyprus" },
-                { flag: "🇦🇫", name: "อัฟกานิสถาน", val: "Afghanistan" },
-                { flag: "🇯🇵", name: "ญี่ปุ่น", val: "Japan" },
-                { flag: "🇦🇿", name: "อาเซอร์ไบจาน", val: "Azerbaijan" },
-                { flag: "🇹🇱", name: "ติมอร์-เลสเต", val: "Timor-Leste" },
-                { flag: "🇦🇲", name: "อาร์มีเนีย", val: "Armenia" },
-                { flag: "🇹🇷", name: "ตุรกี", val: "Turkey" },
-                { flag: "🇮🇳", name: "อินเดีย", val: "India" },
-                { flag: "🇹🇲", name: "เติร์กเมนิสถาน", val: "Turkmenistan" },
-                { flag: "🇮🇩", name: "อินโดนีเซีย", val: "Indonesia" },
-                { flag: "🇹🇯", name: "ทาจิกิสถาน", val: "Tajikistan" },
-                { flag: "🇮🇶", name: "อิรัก", val: "Iraq" },
-                { flag: "🇹🇭", name: "ไทย", val: "Thailand" },
-                { flag: "🇮🇱", name: "อิสราเอล", val: "Israel" },
-                { flag: "🇳🇵", name: "เนปาล", val: "Nepal" },
-                { flag: "🇮🇷", name: "อิหร่าน", val: "Iran" },
-                { flag: "🇧🇳", name: "บรูไน", val: "Brunei" },
-                { flag: "🇺🇿", name: "อุซเบกิสถาน", val: "Uzbekistan" },
-                { flag: "🇧🇩", name: "บังกลาเทศ", val: "Bangladesh" },
-                { flag: "🇴🇲", name: "โอมาน", val: "Oman" },
-                { flag: "🇧🇭", name: "บาห์เรน", val: "Bahrain" },
-                { flag: "🇵🇸", name: "ปาเลสไตน์", val: "Palestine" },
-                { flag: "🇵🇰", name: "ปากีสถาน", val: "Pakistan" },
-                { flag: "🇲🇲", name: "พม่า", val: "Myanmar" }
+                { flag: "🇰🇭", name: "กัมพูชา", val: "Cambodia" }, { flag: "🇵🇭", name: "ฟิลิปปินส์", val: "Philippines" },
+                { flag: "🇶🇦", name: "กาตาร์", val: "Qatar" }, { flag: "🇧🇹", name: "ภูฏาน", val: "Bhutan" },
+                { flag: "🇰🇷", name: "เกาหลีใต้", val: "South Korea" }, { flag: "🇲🇳", name: "มองโกเลีย", val: "Mongolia" },
+                { flag: "🇰🇵", name: "เกาหลีเหนือ", val: "North Korea" }, { flag: "🇲🇻", name: "มัลดีฟส์", val: "Maldives" },
+                { flag: "🇰🇿", name: "คาซัคสถาน", val: "Kazakhstan" }, { flag: "🇲🇾", name: "มาเลเซีย", val: "Malaysia" },
+                { flag: "🇰🇬", name: "คีร์กีซสถาน", val: "Kyrgyzstan" }, { flag: "🇾🇪", name: "เยเมน", val: "Yemen" },
+                { flag: "🇰🇼", name: "คูเวต", val: "Kuwait" }, { flag: "🇱🇦", name: "ลาว", val: "Laos" },
+                { flag: "🇬🇪", name: "จอร์เจีย", val: "Georgia" }, { flag: "🇱🇧", name: "เลบานอน", val: "Lebanon" },
+                { flag: "🇯🇴", name: "จอร์แดน", val: "Jordan" }, { flag: "🇻🇳", name: "เวียดนาม", val: "Vietnam" },
+                { flag: "🇨🇳", name: "จีน", val: "China" }, { flag: "🇱🇰", name: "ศรีลังกา", val: "Sri Lanka" },
+                { flag: "🇸🇦", name: "ซาอุดีอาระเบีย", val: "Saudi Arabia" }, { flag: "🇦🇪", name: "สหรัฐอาหรับเอมิเรตส์", val: "United Arab Emirates" },
+                { flag: "🇸🇾", name: "ซีเรีย", val: "Syria" }, { flag: "🇸🇬", name: "สิงคโปร์", val: "Singapore" },
+                { flag: "🇨🇾", name: "ไซปรัส", val: "Cyprus" }, { flag: "🇦🇫", name: "อัฟกานิสถาน", val: "Afghanistan" },
+                { flag: "🇯🇵", name: "ญี่ปุ่น", val: "Japan" }, { flag: "🇦🇿", name: "อาเซอร์ไบจาน", val: "Azerbaijan" },
+                { flag: "🇹🇱", name: "ติมอร์-เลสเต", val: "Timor-Leste" }, { flag: "🇦🇲", name: "อาร์มีเนีย", val: "Armenia" },
+                { flag: "🇹🇷", name: "ตุรกี", val: "Turkey" }, { flag: "🇮🇳", name: "อินเดีย", val: "India" },
+                { flag: "🇹🇲", name: "เติร์กเมนิสถาน", val: "Turkmenistan" }, { flag: "🇮🇩", name: "อินโดนีเซีย", val: "Indonesia" },
+                { flag: "🇹🇯", name: "ทาจิกิสถาน", val: "Tajikistan" }, { flag: "🇮🇶", name: "อิรัก", val: "Iraq" },
+                { flag: "🇹🇭", name: "ไทย", val: "Thailand" }, { flag: "🇮🇱", name: "อิสราเอล", val: "Israel" },
+                { flag: "🇳🇵", name: "เนปาล", val: "Nepal" }, { flag: "🇮🇷", name: "อิหร่าน", val: "Iran" },
+                { flag: "🇧🇳", name: "บรูไน", val: "Brunei" }, { flag: "🇺🇿", name: "อุซเบกิสถาน", val: "Uzbekistan" },
+                { flag: "🇧🇩", name: "บังกลาเทศ", val: "Bangladesh" }, { flag: "🇴🇲", name: "โอมาน", val: "Oman" },
+                { flag: "🇧🇭", name: "บาห์เรน", val: "Bahrain" }, { flag: "🇵🇸", name: "ปาเลสไตน์", val: "Palestine" },
+                { flag: "🇵🇰", name: "ปากีสถาน", val: "Pakistan" }, { flag: "🇲🇲", name: "พม่า", val: "Myanmar" }
             ],
             "ทวีปยุโรป (Europe)": [
-                { flag: "🇬🇷", name: "กรีซ", val: "Greece" },
-                { flag: "🇲🇹", name: "มอลตา", val: "Malta" },
-                { flag: "🇭🇷", name: "โครเอเชีย", val: "Croatia" },
-                { flag: "🇲🇰", name: "มาซิโดเนียเหนือ", val: "North Macedonia" },
-                { flag: "🇸🇲", name: "ซานมารีโน", val: "San Marino" },
-                { flag: "🇲🇨", name: "โมนาโก", val: "Monaco" },
-                { flag: "🇷🇸", name: "เซอร์เบีย", val: "Serbia" },
-                { flag: "🇺🇦", name: "ยูเครน", val: "Ukraine" },
-                { flag: "🇩🇰", name: "เดนมาร์ก", val: "Denmark" },
-                { flag: "🇩🇪", name: "เยอรมนี", val: "Germany" },
-                { flag: "🇻🇦", name: "นครรัฐวาติกัน", val: "Vatican City" },
-                { flag: "🇷🇺", name: "รัสเซีย", val: "Russia" },
-                { flag: "🇳🇴", name: "นอร์เวย์", val: "Norway" },
-                { flag: "🇷🇴", name: "โรมาเนีย", val: "Romania" },
-                { flag: "🇳🇱", name: "เนเธอร์แลนด์", val: "Netherlands" },
-                { flag: "🇱🇺", name: "ลักเซมเบิร์ก", val: "Luxembourg" },
-                { flag: "🇧🇦", name: "บอสเนียและเฮอร์เซโกวีนา", val: "Bosnia and Herzegovina" },
-                { flag: "🇱🇻", name: "ลัตเวีย", val: "Latvia" },
-                { flag: "🇧🇬", name: "บัลแกเรีย", val: "Bulgaria" },
-                { flag: "🇱🇮", name: "ลิกเตนสไตน์", val: "Liechtenstein" },
-                { flag: "🇧🇪", name: "เบลเยียม", val: "Belgium" },
-                { flag: "🇱🇹", name: "ลิทัวเนีย", val: "Lithuania" },
-                { flag: "🇧🇾", name: "เบลารุส", val: "Belarus" },
-                { flag: "🇪🇸", name: "สเปน", val: "Spain" },
-                { flag: "🇵🇹", name: "โปรตุเกส", val: "Portugal" },
-                { flag: "🇸🇰", name: "สโลวาเกีย", val: "Slovakia" },
-                { flag: "🇵🇱", name: "โปแลนด์", val: "Poland" },
-                { flag: "🇸🇮", name: "สโลวีเนีย", val: "Slovenia" },
-                { flag: "🇫🇷", name: "ฝรั่งเศส", val: "France" },
-                { flag: "🇨🇭", name: "สวิตเซอร์แลนด์", val: "Switzerland" },
-                { flag: "🇫🇮", name: "ฟินแลนด์", val: "Finland" },
-                { flag: "🇸🇪", name: "สวีเดน", val: "Sweden" },
-                { flag: "🇲🇪", name: "มอนเตเนโกร", val: "Montenegro" },
-                { flag: "🇬🇧", name: "สหราชอาณาจักร", val: "United Kingdom" },
-                { flag: "🇲🇩", name: "มอลโดวา", val: "Moldova" },
-                { flag: "🇨🇿", name: "สาธารณรัฐเช็ก", val: "Czech Republic" },
-                { flag: "🇦🇹", name: "ออสเตรีย", val: "Austria" },
-                { flag: "🇦🇩", name: "อันดอร์รา", val: "Andorra" },
-                { flag: "🇮🇹", name: "อิตาลี", val: "Italy" },
-                { flag: "🇪🇪", name: "เอสโตเนีย", val: "Estonia" },
-                { flag: "🇦🇱", name: "แอลเบเนีย", val: "Albania" },
-                { flag: "🇮🇸", name: "ไอซ์แลนด์", val: "Iceland" },
-                { flag: "🇮🇪", name: "ไอร์แลนด์", val: "Ireland" },
-                { flag: "🇭🇺", name: "ฮังการี", val: "Hungary" }
+                { flag: "🇬🇷", name: "กรีซ", val: "Greece" }, { flag: "🇲🇹", name: "มอลตา", val: "Malta" },
+                { flag: "🇭🇷", name: "โครเอเชีย", val: "Croatia" }, { flag: "🇲🇰", name: "มาซิโดเนียเหนือ", val: "North Macedonia" },
+                { flag: "🇸🇲", name: "ซานมารีโน", val: "San Marino" }, { flag: "🇲🇨", name: "โมนาโก", val: "Monaco" },
+                { flag: "🇷🇸", name: "เซอร์เบีย", val: "Serbia" }, { flag: "🇺🇦", name: "ยูเครน", val: "Ukraine" },
+                { flag: "🇩🇰", name: "เดนมาร์ก", val: "Denmark" }, { flag: "🇩🇪", name: "เยอรมนี", val: "Germany" },
+                { flag: "🇻🇦", name: "นครรัฐวาติกัน", val: "Vatican City" }, { flag: "🇷🇺", name: "รัสเซีย", val: "Russia" },
+                { flag: "🇳🇴", name: "นอร์เวย์", val: "Norway" }, { flag: "🇷🇴", name: "โรมาเนีย", val: "Romania" },
+                { flag: "🇳🇱", name: "เนเธอร์แลนด์", val: "Netherlands" }, { flag: "🇱🇺", name: "ลักเซมเบิร์ก", val: "Luxembourg" },
+                { flag: "🇧🇦", name: "บอสเนีย", val: "Bosnia and Herzegovina" }, { flag: "🇱🇻", name: "ลัตเวีย", val: "Latvia" },
+                { flag: "🇧🇬", name: "บัลแกเรีย", val: "Bulgaria" }, { flag: "🇱🇮", name: "ลิกเตนสไตน์", val: "Liechtenstein" },
+                { flag: "🇧🇪", name: "เบลเยียม", val: "Belgium" }, { flag: "🇱🇹", name: "ลิทัวเนีย", val: "Lithuania" },
+                { flag: "🇧🇾", name: "เบลารุส", val: "Belarus" }, { flag: "🇪🇸", name: "สเปน", val: "Spain" },
+                { flag: "🇵🇹", name: "โปรตุเกส", val: "Portugal" }, { flag: "🇸🇰", name: "สโลวาเกีย", val: "Slovakia" },
+                { flag: "🇵🇱", name: "โปแลนด์", val: "Poland" }, { flag: "🇸🇮", name: "สโลวีเนีย", val: "Slovenia" },
+                { flag: "🇫🇷", name: "ฝรั่งเศส", val: "France" }, { flag: "🇨🇭", name: "สวิตเซอร์แลนด์", val: "Switzerland" },
+                { flag: "🇫🇮", name: "ฟินแลนด์", val: "Finland" }, { flag: "🇸🇪", name: "สวีเดน", val: "Sweden" },
+                { flag: "🇲🇪", name: "มอนเตเนโกร", val: "Montenegro" }, { flag: "🇬🇧", name: "สหราชอาณาจักร", val: "United Kingdom" },
+                { flag: "🇲🇩", name: "มอลโดวา", val: "Moldova" }, { flag: "🇨🇿", name: "สาธารณรัฐเช็ก", val: "Czech Republic" },
+                { flag: "🇦🇹", name: "ออสเตรีย", val: "Austria" }, { flag: "🇦🇩", name: "อันดอร์รา", val: "Andorra" },
+                { flag: "🇮🇹", name: "อิตาลี", val: "Italy" }, { flag: "🇪🇪", name: "เอสโตเนีย", val: "Estonia" },
+                { flag: "🇦🇱", name: "แอลเบเนีย", val: "Albania" }, { flag: "🇮🇸", name: "ไอซ์แลนด์", val: "Iceland" },
+                { flag: "🇮🇪", name: "ไอร์แลนด์", val: "Ireland" }, { flag: "🇭🇺", name: "ฮังการี", val: "Hungary" }
             ],
             "ทวีปแอฟริกา (Africa)": [
-                { flag: "🇬🇭", name: "กานา", val: "Ghana" },
-                { flag: "🇧🇼", name: "บอตสวานา", val: "Botswana" },
-                { flag: "🇬🇦", name: "กาบอง", val: "Gabon" },
-                { flag: "🇧🇮", name: "บุรุนดี", val: "Burundi" },
-                { flag: "🇬🇳", name: "กินี", val: "Guinea" },
-                { flag: "🇧🇫", name: "บูร์กินาฟาโซ", val: "Burkina Faso" },
-                { flag: "🇬🇼", name: "กินี-บิสเซา", val: "Guinea-Bissau" },
-                { flag: "🇧🇯", name: "เบนิน", val: "Benin" },
-                { flag: "🇬🇲", name: "แกมเบีย", val: "The Gambia" },
-                { flag: "🇲🇺", name: "มอริเชียส", val: "Mauritius" },
-                { flag: "🇨🇮", name: "โกตดิวัวร์", val: "Côte d'Ivoire" },
-                { flag: "🇲🇷", name: "มอริเตเนีย", val: "Mauritania" },
-                { flag: "🇰🇲", name: "คอโมโรส", val: "Comoros" },
-                { flag: "🇲🇬", name: "มาดากัสการ์", val: "Madagascar" },
-                { flag: "🇰🇪", name: "เคนยา", val: "Kenya" },
-                { flag: "🇲🇼", name: "มาลาวี", val: "Malawi" },
-                { flag: "🇨🇻", name: "เคปเวิร์ด", val: "Cape Verde" },
-                { flag: "🇲🇱", name: "มาลี", val: "Mali" },
-                { flag: "🇨🇲", name: "แคเมอรูน", val: "Cameroon" },
-                { flag: "🇲🇿", name: "โมซัมบิก", val: "Mozambique" },
-                { flag: "🇩🇯", name: "จิบูตี", val: "Djibouti" },
-                { flag: "🇲🇦", name: "โมร็อกโก", val: "Morocco" },
-                { flag: "🇹🇩", name: "ชาด", val: "Chad" },
-                { flag: "🇺🇬", name: "ยูกันดา", val: "Uganda" },
-                { flag: "🇿🇼", name: "ซิมบับเว", val: "Zimbabwe" },
-                { flag: "🇷🇼", name: "รวันดา", val: "Rwanda" },
-                { flag: "🇸🇩", name: "ซูดาน", val: "Sudan" },
-                { flag: "🇱🇾", name: "ลิเบีย", val: "Libya" },
-                { flag: "🇸🇸", name: "ซูดานใต้", val: "South Sudan" },
-                { flag: "🇱🇸", name: "เลโซโท", val: "Lesotho" },
-                { flag: "🇸🇨", name: "เซเชลส์", val: "Seychelles" },
-                { flag: "🇱🇷", name: "ไลบีเรีย", val: "Liberia" },
-                { flag: "🇸🇳", name: "เซเนกัล", val: "Senegal" },
-                { flag: "🇨🇬", name: "สาธารณรัฐคองโก", val: "Republic of the Congo" },
-                { flag: "🇸🇹", name: "เซาตูเมและปรินซิปี", val: "São Tomé and Príncipe" },
-                { flag: "🇨🇩", name: "สาธารณรัฐประชาธิปไตยคองโก", val: "Democratic Republic of the Congo" },
-                { flag: "🇸🇱", name: "เซียร์ราลีโอน", val: "Sierra Leone" },
-                { flag: "🇨🇫", name: "สาธารณรัฐแอฟริกากลาง", val: "Central African Republic" },
-                { flag: "🇿🇲", name: "แซมเบีย", val: "Zambia" },
-                { flag: "🇬🇶", name: "อิเควทอเรียลกินี", val: "Equatorial Guinea" },
-                { flag: "🇸🇴", name: "โซมาเลีย", val: "Somalia" },
-                { flag: "🇪🇬", name: "อียิปต์", val: "Egypt" },
-                { flag: "🇹🇳", name: "ตูนิเซีย", val: "Tunisia" },
-                { flag: "🇪🇹", name: "เอธิโอเปีย", val: "Ethiopia" },
-                { flag: "🇹🇬", name: "โตโก", val: "Togo" },
-                { flag: "🇪🇷", name: "เอริเทรีย", val: "Eritrea" },
-                { flag: "🇹🇿", name: "แทนซาเนีย", val: "Tanzania" },
-                { flag: "🇸🇿", name: "เอสวาตินี", val: "Eswatini" },
-                { flag: "🇳🇦", name: "นามิเบีย", val: "Namibia" },
-                { flag: "🇦🇴", name: "แองโกลา", val: "Angola" },
-                { flag: "🇳🇬", name: "ไนจีเรีย", val: "Nigeria" },
-                { flag: "🇿🇦", name: "แอฟริกาใต้", val: "South Africa" },
-                { flag: "🇳🇪", name: "ไนเจอร์", val: "Niger" },
-                { flag: "🇩🇿", name: "แอลจีเรีย", val: "Algeria" }
+                { flag: "🇬🇭", name: "กานา", val: "Ghana" }, { flag: "🇧🇼", name: "บอตสวานา", val: "Botswana" },
+                { flag: "🇬🇦", name: "กาบอง", val: "Gabon" }, { flag: "🇧🇮", name: "บุรุนดี", val: "Burundi" },
+                { flag: "🇬🇳", name: "กินี", val: "Guinea" }, { flag: "🇧🇫", name: "บูร์กินาฟาโซ", val: "Burkina Faso" },
+                { flag: "🇬🇼", name: "กินี-บิสเซา", val: "Guinea-Bissau" }, { flag: "🇧🇯", name: "เบนิน", val: "Benin" },
+                { flag: "🇬🇲", name: "แกมเบีย", val: "The Gambia" }, { flag: "🇲🇺", name: "มอริเชียส", val: "Mauritius" },
+                { flag: "🇨🇮", name: "โกตดิวัวร์", val: "Côte d'Ivoire" }, { flag: "🇲🇷", name: "มอริเตเนีย", val: "Mauritania" },
+                { flag: "🇰🇲", name: "คอโมโรส", val: "Comoros" }, { flag: "🇲🇬", name: "มาดากัสการ์", val: "Madagascar" },
+                { flag: "🇰🇪", name: "เคนยา", val: "Kenya" }, { flag: "🇲🇼", name: "มาลาวี", val: "Malawi" },
+                { flag: "🇨🇻", name: "เคปเวิร์ด", val: "Cape Verde" }, { flag: "🇲🇱", name: "มาลี", val: "Mali" },
+                { flag: "🇨🇲", name: "แคเมอรูน", val: "Cameroon" }, { flag: "🇲🇿", name: "โมซัมบิก", val: "Mozambique" },
+                { flag: "🇩🇯", name: "จิบูตี", val: "Djibouti" }, { flag: "🇲🇦", name: "โมร็อกโก", val: "Morocco" },
+                { flag: "🇹🇩", name: "ชาด", val: "Chad" }, { flag: "🇺🇬", name: "ยูกันดา", val: "Uganda" },
+                { flag: "🇿🇼", name: "ซิมบับเว", val: "Zimbabwe" }, { flag: "🇷🇼", name: "รวันดา", val: "Rwanda" },
+                { flag: "🇸🇩", name: "ซูดาน", val: "Sudan" }, { flag: "🇱🇾", name: "ลิเบีย", val: "Libya" },
+                { flag: "🇸🇸", name: "ซูดานใต้", val: "South Sudan" }, { flag: "🇱🇸", name: "เลโซโท", val: "Lesotho" },
+                { flag: "🇸🇨", name: "เซเชลส์", val: "Seychelles" }, { flag: "🇱🇷", name: "ไลบีเรีย", val: "Liberia" },
+                { flag: "🇸🇳", name: "เซเนกัล", val: "Senegal" }, { flag: "🇨🇬", name: "คองโก", val: "Republic of the Congo" },
+                { flag: "🇸🇹", name: "เซาตูเม", val: "São Tomé and Príncipe" }, { flag: "🇨🇩", name: "ดีอาร์ คองโก", val: "Democratic Republic of the Congo" },
+                { flag: "🇸🇱", name: "เซียร์ราลีโอน", val: "Sierra Leone" }, { flag: "🇨🇫", name: "แอฟริกากลาง", val: "Central African Republic" },
+                { flag: "🇿🇲", name: "แซมเบีย", val: "Zambia" }, { flag: "🇬🇶", name: "อิเควทอเรียลกินี", val: "Equatorial Guinea" },
+                { flag: "🇸🇴", name: "โซมาเลีย", val: "Somalia" }, { flag: "🇪🇬", name: "อียิปต์", val: "Egypt" },
+                { flag: "🇹🇳", name: "ตูนิเซีย", val: "Tunisia" }, { flag: "🇪🇹", name: "เอธิโอเปีย", val: "Ethiopia" },
+                { flag: "🇹🇬", name: "โตโก", val: "Togo" }, { flag: "🇪🇷", name: "เอริเทรีย", val: "Eritrea" },
+                { flag: "🇹🇿", name: "แทนซาเนีย", val: "Tanzania" }, { flag: "🇸🇿", name: "เอสวาตินี", val: "Eswatini" },
+                { flag: "🇳🇦", name: "นามิเบีย", val: "Namibia" }, { flag: "🇦🇴", name: "แองโกลา", val: "Angola" },
+                { flag: "🇳🇬", name: "ไนจีเรีย", val: "Nigeria" }, { flag: "🇿🇦", name: "แอฟริกาใต้", val: "South Africa" },
+                { flag: "🇳🇪", name: "ไนเจอร์", val: "Niger" }, { flag: "🇩🇿", name: "แอลจีเรีย", val: "Algeria" }
             ],
             "ทวีปอเมริกาเหนือ (North America)": [
-                { flag: "🇬🇹", name: "กัวเตมาลา", val: "Guatemala" },
-                { flag: "🇧🇧", name: "บาร์เบโดส", val: "Barbados" },
-                { flag: "🇬🇩", name: "เกรเนดา", val: "Grenada" },
-                { flag: "🇧🇸", name: "บาฮามาส", val: "Bahamas" },
-                { flag: "🇨🇷", name: "คอสตาริกา", val: "Costa Rica" },
-                { flag: "🇧🇿", name: "เบลีซ", val: "Belize" },
-                { flag: "🇨🇺", name: "คิวบา", val: "Cuba" },
-                { flag: "🇵🇦", name: "ปานามา", val: "Panama" },
-                { flag: "🇨🇦", name: "แคนาดา", val: "Canada" },
-                { flag: "🇲🇽", name: "เม็กซิโก", val: "Mexico" },
-                { flag: "🇯🇲", name: "จาเมกา", val: "Jamaica" },
-                { flag: "🇺🇸", name: "สหรัฐอเมริกา", val: "United States" },
-                { flag: "🇰🇳", name: "เซนต์คิตส์และเนวิส", val: "Saint Kitts and Nevis" },
-                { flag: "🇩🇴", name: "สาธารณรัฐโดมินิกัน", val: "Dominican Republic" },
-                { flag: "🇱🇨", name: "เซนต์ลูเซีย", val: "Saint Lucia" },
-                { flag: "🇸🇻", name: "เอลซัลวาดอร์", val: "El Salvador" },
-                { flag: "🇻🇨", name: "เซนต์วินเซนต์และเกรนาดีนส์", val: "Saint Vincent and the Grenadines" },
-                { flag: "🇦🇬", name: "แอนติกาและบาร์บูดา", val: "Antigua and Barbuda" },
-                { flag: "🇹🇹", name: "ตรินิแดดและโตเบโก", val: "Trinidad and Tobago" },
-                { flag: "🇭🇳", name: "ฮอนดูรัส", val: "Honduras" },
-                { flag: "🇳🇮", name: "นิการากัว", val: "Nicaragua" },
-                { flag: "🇩🇲", name: "โดมินิกา", val: "Dominica" },
+                { flag: "🇬🇹", name: "กัวเตมาลา", val: "Guatemala" }, { flag: "🇧🇧", name: "บาร์เบโดส", val: "Barbados" },
+                { flag: "🇬🇩", name: "เกรเนดา", val: "Grenada" }, { flag: "🇧🇸", name: "บาฮามาส", val: "Bahamas" },
+                { flag: "🇨🇷", name: "คอสตาริกา", val: "Costa Rica" }, { flag: "🇧🇿", name: "เบลีซ", val: "Belize" },
+                { flag: "🇨🇺", name: "คิวบา", val: "Cuba" }, { flag: "🇵🇦", name: "ปานามา", val: "Panama" },
+                { flag: "🇨🇦", name: "แคนาดา", val: "Canada" }, { flag: "🇲🇽", name: "เม็กซิโก", val: "Mexico" },
+                { flag: "🇯🇲", name: "จาเมกา", val: "Jamaica" }, { flag: "🇺🇸", name: "สหรัฐอเมริกา", val: "United States" },
+                { flag: "🇰🇳", name: "เซนต์คิตส์และเนวิส", val: "Saint Kitts and Nevis" }, { flag: "🇩🇴", name: "โดมินิกัน", val: "Dominican Republic" },
+                { flag: "🇱🇨", name: "เซนต์ลูเซีย", val: "Saint Lucia" }, { flag: "🇸🇻", name: "เอลซัลวาดอร์", val: "El Salvador" },
+                { flag: "🇻🇨", name: "เซนต์วินเซนต์", val: "Saint Vincent and the Grenadines" }, { flag: "🇦🇬", name: "แอนติกาและบาร์บูดา", val: "Antigua and Barbuda" },
+                { flag: "🇹🇹", name: "ตรินิแดดและโตเบโก", val: "Trinidad and Tobago" }, { flag: "🇭🇳", name: "ฮอนดูรัส", val: "Honduras" },
+                { flag: "🇳🇮", name: "นิการากัว", val: "Nicaragua" }, { flag: "🇩🇲", name: "โดมินิกา", val: "Dominica" },
                 { flag: "🇭🇹", name: "เฮติ", val: "Haiti" }
             ],
             "ทวีปอเมริกาใต้ (South America)": [
-                { flag: "🇬🇾", name: "กายอานา", val: "Guyana" },
-                { flag: "🇵🇾", name: "ปารากวัย", val: "Paraguay" },
-                { flag: "🇨🇴", name: "โคลอมเบีย", val: "Colombia" },
-                { flag: "🇵🇪", name: "เปรู", val: "Peru" },
-                { flag: "🇨🇱", name: "ชิลี", val: "Chile" },
-                { flag: "🇻🇪", name: "เวเนซุเอลา", val: "Venezuela" },
-                { flag: "🇸🇷", name: "ซูรินาเม", val: "Suriname" },
-                { flag: "🇦🇷", name: "อาร์เจนตินา", val: "Argentina" },
-                { flag: "🇧🇷", name: "บราซิล", val: "Brazil" },
-                { flag: "🇺🇾", name: "อุรุกวัย", val: "Uruguay" },
-                { flag: "🇧🇴", name: "โบลิเวีย", val: "Bolivia" },
-                { flag: "🇪🇨", name: "เอกวาดอร์", val: "Ecuador" }
+                { flag: "🇬🇾", name: "กายอานา", val: "Guyana" }, { flag: "🇵🇾", name: "ปารากวัย", val: "Paraguay" },
+                { flag: "🇨🇴", name: "โคลอมเบีย", val: "Colombia" }, { flag: "🇵🇪", name: "เปรู", val: "Peru" },
+                { flag: "🇨🇱", name: "ชิลี", val: "Chile" }, { flag: "🇻🇪", name: "เวเนซุเอลา", val: "Venezuela" },
+                { flag: "🇸🇷", name: "ซูรินาเม", val: "Suriname" }, { flag: "🇦🇷", name: "อาร์เจนตินา", val: "Argentina" },
+                { flag: "🇧🇷", name: "บราซิล", val: "Brazil" }, { flag: "🇺🇾", name: "อุรุกวัย", val: "Uruguay" },
+                { flag: "🇧🇴", name: "โบลิเวีย", val: "Bolivia" }, { flag: "🇪🇨", name: "เอกวาดอร์", val: "Ecuador" }
             ],
             "ทวีปโอเชียเนีย (Oceania)": [
-                { flag: "🇰🇮", name: "คิริบาส", val: "Kiribati" },
-                { flag: "🇵🇼", name: "ปาเลา", val: "Palau" },
-                { flag: "🇼🇸", name: "ซามัว", val: "Samoa" },
-                { flag: "🇫🇯", name: "ฟิจิ", val: "Fiji" },
-                { flag: "🇹🇴", name: "ตองกา", val: "Tonga" },
-                { flag: "🇫🇲", name: "ไมโครนีเซีย", val: "Micronesia" },
-                { flag: "🇹🇻", name: "ตูวาลู", val: "Tuvalu" },
-                { flag: "🇻🇺", name: "วานูอาตู", val: "Vanuatu" },
-                { flag: "🇳🇷", name: "นาอูรู", val: "Nauru" },
-                { flag: "🇸🇧", name: "หมู่เกาะโซโลมอน", val: "Solomon Islands" },
-                { flag: "🇳🇿", name: "นิวซีแลนด์", val: "New Zealand" },
-                { flag: "🇲🇭", name: "หมู่เกาะมาร์แชลล์", val: "Marshall Islands" },
-                { flag: "🇵🇬", name: "ปาปัวนิวกินี", val: "Papua New Guinea" },
-                { flag: "🇦🇺", name: "ออสเตรเลีย", val: "Australia" }
+                { flag: "🇰🇮", name: "คิริบาส", val: "Kiribati" }, { flag: "🇵🇼", name: "ปาเลา", val: "Palau" },
+                { flag: "🇼🇸", name: "ซามัว", val: "Samoa" }, { flag: "🇫🇯", name: "ฟิจิ", val: "Fiji" },
+                { flag: "🇹🇴", name: "ตองกา", val: "Tonga" }, { flag: "🇫🇲", name: "ไมโครนีเซีย", val: "Micronesia" },
+                { flag: "🇹🇻", name: "ตูวาลู", val: "Tuvalu" }, { flag: "🇻🇺", name: "วานูอาตู", val: "Vanuatu" },
+                { flag: "🇳🇷", name: "นาอูรู", val: "Nauru" }, { flag: "🇸🇧", name: "หมู่เกาะโซโลมอน", val: "Solomon Islands" },
+                { flag: "🇳🇿", name: "นิวซีแลนด์", val: "New Zealand" }, { flag: "🇲🇭", name: "หมู่เกาะมาร์แชลล์", val: "Marshall Islands" },
+                { flag: "🇵🇬", name: "ปาปัวนิวกินี", val: "Papua New Guinea" }, { flag: "🇦🇺", name: "ออสเตรเลีย", val: "Australia" }
             ]
         };
 
@@ -435,6 +390,7 @@
         const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
         let myCountry = 'Unknown';
+        let myCountryFlag = '🏳️';
         let myGender = 'unspecified';
         let prefGender = 'all';
         let prefCountry = 'all';
@@ -442,15 +398,18 @@
 
         const homeScreen = document.getElementById('homeScreen');
         const chatScreen = document.getElementById('chatScreen');
+        
+        const leftIdleUi = document.getElementById('leftIdleUi');
+        const leftMatchedUi = document.getElementById('leftMatchedUi');
+        
         const chatStatusText = document.getElementById('chatStatusText');
+        const partnerCountryText = document.getElementById('partnerCountryText');
         const remoteAudio = document.getElementById('remoteAudio');
-        const reportBtn = document.getElementById('reportBtn');
         const swipeHint = document.getElementById('swipeHint');
         const countrySelect = document.getElementById('prefCountrySelect');
 
-        // --- 3. การล็อกอินและโหลดข้อมูลประเทศ ---
+        // --- 3. โหลดหน้าเว็บ และดึงข้อมูล ---
         window.onload = async function() {
-            // โหลด 195 ประเทศลงใน Dropdown อย่างเป็นระเบียบ
             for (const [region, countries] of Object.entries(countryGroups)) {
                 const optgroup = document.createElement('optgroup');
                 optgroup.label = region;
@@ -470,7 +429,8 @@
 
                 fetch('https://ipapi.co/json/').then(res => res.json()).then(ipData => {
                     myCountry = ipData.country_name || 'Unknown';
-                    if(ipData.country_code) document.getElementById('myCountryFlag').innerText = getFlagEmoji(ipData.country_code);
+                    if(ipData.country_code) myCountryFlag = getFlagEmoji(ipData.country_code);
+                    document.getElementById('myCountryFlag').innerText = myCountryFlag;
                     sb.from('profiles').upsert({ id: user.id, country: myCountry, gender: myGender }).then();
                 }).catch(() => {
                     sb.from('profiles').upsert({ id: user.id, country: 'Unknown', gender: myGender }).then();
@@ -493,14 +453,32 @@
             }
         };
 
-        // --- 4. เข้าสู่หน้าแชท (ไม่เด้งขอไมค์) ---
+        function getFlagEmoji(countryCode) {
+            if(!countryCode) return '🏳️';
+            const codePoints = countryCode.toUpperCase().split('').map(char =>  127397 + char.charCodeAt());
+            return String.fromCodePoint(...codePoints);
+        }
+
+        // --- 4. การสลับ UI ---
+        function setLeftPanelState(state) {
+            if (state === 'idle') {
+                leftIdleUi.style.display = 'flex';
+                leftMatchedUi.style.display = 'none';
+                drawFlatWaveform('remoteWaveform');
+            } else if (state === 'matched' || state === 'searching') {
+                leftIdleUi.style.display = 'none';
+                leftMatchedUi.style.display = 'block';
+            }
+        }
+
         function enterChatScreen() {
             homeScreen.style.display = 'none';
             chatScreen.style.display = 'block';
-            drawFlatWaveform(); 
+            setLeftPanelState('idle');
+            drawFlatWaveform('localWaveform'); 
         }
 
-        // --- 5. จัดการไมโครโฟน (ขอเมื่อผู้ใช้คลิก) ---
+        // --- 5. จัดการไมโครโฟน ---
         async function toggleMic() {
             const micBtn = document.getElementById('micToggleBtn');
             
@@ -510,7 +488,7 @@
                     isMicMuted = false;
                     micBtn.classList.remove('mic-off');
                     
-                    if (!peerConnection) initWaveform('mainWaveform', localStream);
+                    if (!peerConnection) initWaveform('localWaveform', localStream);
                     
                     if (peerConnection && signalingChannel) {
                         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
@@ -529,14 +507,20 @@
             micBtn.classList.toggle('mic-off', isMicMuted);
         }
 
-        // --- 6. ระบบปัดหน้าจอไปทางซ้าย (Swipe Left) ---
+        // --- 6. ระบบปัดหน้าจอ (Swipe Left / Right) ---
         let touchstartX = 0;
         let touchendX = 0;
 
         function checkSwipe() {
-            if (touchstartX - touchendX > 50) {
+            let deltaX = touchstartX - touchendX;
+            if (deltaX > 50) {
+                // ปัดไปทางซ้าย -> ค้นหาคนใหม่
                 swipeHint.style.display = 'none';
-                skipMatch();
+                skipMatchAndSearch();
+            } else if (deltaX < -50) {
+                // ปัดไปทางขวา -> หยุดสนทนา และกลับไปหน้า 2 (Idle)
+                swipeHint.style.display = 'none';
+                stopMatchAndReturn();
             }
         }
 
@@ -546,14 +530,18 @@
         let mousedownX = 0;
         document.getElementById('chatScreen').addEventListener('mousedown', e => { mousedownX = e.screenX; });
         document.getElementById('chatScreen').addEventListener('mouseup', e => { 
-            if(mousedownX - e.screenX > 50) { swipeHint.style.display = 'none'; skipMatch(); } 
+            let dX = mousedownX - e.screenX;
+            if(dX > 50) { swipeHint.style.display = 'none'; skipMatchAndSearch(); } 
+            else if(dX < -50) { swipeHint.style.display = 'none'; stopMatchAndReturn(); }
         });
 
-        // --- 7. ระบบค้นหาและจับคู่ ---
+        // --- 7. ระบบค้นหาและหยุดสนทนา ---
         async function startMatchmaking() {
-            reportBtn.style.display = 'none';
+            setLeftPanelState('searching');
+            document.getElementById('reportBtn').style.display = 'none';
             chatStatusText.innerText = 'กำลังค้นหาการเชื่อมต่อ...';
-            drawFlatWaveform();
+            partnerCountryText.innerText = 'รอการจับคู่';
+            drawFlatWaveform('remoteWaveform');
 
             await sb.from('waiting_queue').delete().eq('user_id', user.id);
 
@@ -567,6 +555,10 @@
                 partnerId = queue[0].user_id;
                 currentRoomId = partnerId;
                 await sb.from('waiting_queue').delete().eq('user_id', partnerId);
+                
+                const { data: pData } = await sb.from('profiles').select('country').eq('id', partnerId).single();
+                partnerCountryText.innerText = pData ? `${pData.country}` : 'Unknown';
+
                 setupWebRTC(partnerId, true);
             } else {
                 currentRoomId = user.id;
@@ -585,9 +577,9 @@
 
             peerConnection.ontrack = (event) => {
                 remoteAudio.srcObject = event.streams[0];
-                chatStatusText.innerText = 'การเชื่อมต่อสำเร็จ กำลังสนทนา';
-                reportBtn.style.display = 'block';
-                initWaveform('mainWaveform', event.streams[0]);
+                chatStatusText.innerText = 'การเชื่อมต่อถูกตั้งขึ้นแล้ว';
+                document.getElementById('reportBtn').style.display = 'block';
+                initWaveform('remoteWaveform', event.streams[0]);
             };
 
             peerConnection.onicecandidate = (event) => {
@@ -598,13 +590,17 @@
 
             signalingChannel.on('broadcast', { event: 'signal' }, async (msg) => {
                 const data = msg.payload;
+                
                 if (data.action === 'skip') { cleanupConnection(); startMatchmaking(); return; }
+                if (data.action === 'emoji') { showEmojiOnScreen(data.emoji, 'left'); return; }
+                if (data.action === 'info' && !isCaller) { partnerCountryText.innerText = data.country; }
 
                 if (data.offer && !isCaller) {
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
                     const answer = await peerConnection.createAnswer();
                     await peerConnection.setLocalDescription(answer);
                     signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { answer: answer } });
+                    signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'info', country: `${myCountry} ${myCountryFlag}` } });
                 }
                 if (data.answer && isCaller) await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
                 if (data.candidate) try { await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch(e){}
@@ -617,11 +613,20 @@
             });
         }
 
-        async function skipMatch() { 
+        // ปัดซ้าย (ค้นหาใหม่)
+        async function skipMatchAndSearch() { 
             if (signalingChannel) signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'skip' } });
             cleanupConnection(); 
             if (user) await sb.from('waiting_queue').delete().eq('user_id', user.id); 
             startMatchmaking(); 
+        }
+
+        // ปัดขวา (หยุดการสนทนา กลับไปหน้า 2)
+        async function stopMatchAndReturn() {
+            if (signalingChannel) signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'skip' } });
+            cleanupConnection();
+            if (user) await sb.from('waiting_queue').delete().eq('user_id', user.id); 
+            setLeftPanelState('idle'); // กลับมาหน้า 2 (โลโก้อยู่ตรงกลาง)
         }
 
         function cleanupConnection() {
@@ -629,27 +634,42 @@
             if (signalingChannel) { sb.removeChannel(signalingChannel); signalingChannel = null; }
             remoteAudio.srcObject = null;
             partnerId = null;
-            reportBtn.style.display = 'none';
-            if (localStream) initWaveform('mainWaveform', localStream); 
-            else drawFlatWaveform();
+            document.getElementById('reportBtn').style.display = 'none';
+            drawFlatWaveform('remoteWaveform');
         }
 
         async function reportUser() {
             if (!partnerId) return;
             if (confirm('ยืนยันการรายงานผู้ใช้รายนี้ว่ากระทำผิดกฎ? (ระบบจะตัดการเชื่อมต่อทันที)')) {
                 await sb.from('reports').insert({ reporter_id: user.id, reported_user_id: partnerId, room_id: `room_${currentRoomId}` });
-                skipMatch();
+                skipMatchAndSearch();
             }
         }
 
-        // --- 8. UI Modals ---
+        // --- 8. อีโมจิ ---
+        function sendEmoji(emoji) {
+            showEmojiOnScreen(emoji, 'right');
+            if (signalingChannel) signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'emoji', emoji: emoji } });
+        }
+
+        function showEmojiOnScreen(emoji, side) {
+            const el = document.createElement('div');
+            el.innerText = emoji;
+            el.className = 'floating-emoji';
+            el.style[side] = Math.random() * 30 + 10 + '%';
+            el.style.bottom = '150px';
+            document.getElementById('chatScreen').appendChild(el);
+            setTimeout(() => el.remove(), 2000);
+        }
+
+        // --- 9. UI Modals ---
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         async function saveMyProfile() {
             myGender = document.getElementById('myGenderSelect').value;
-            const labels = { 'unspecified':'(ไม่ระบุ)', 'male':'(ชาย)', 'female':'(หญิง)' };
-            document.getElementById('myGenderText').innerText = labels[myGender];
+            const icons = { 'unspecified':'🧑', 'male':'👨', 'female':'👩' };
+            document.getElementById('myGenderText').innerText = icons[myGender];
             if(user) await sb.from('profiles').update({ gender: myGender }).eq('id', user.id);
             closeModal('genderModal');
         }
@@ -660,19 +680,13 @@
             closeModal('settingsModal');
         }
 
-        function getFlagEmoji(countryCode) {
-            if(!countryCode) return '🏳️';
-            const codePoints = countryCode.toUpperCase().split('').map(char =>  127397 + char.charCodeAt());
-            return String.fromCodePoint(...codePoints);
-        }
-
-        // --- 9. คลื่นเสียง (Waveform) ---
+        // --- 10. คลื่นเสียง (Waveform) แยก 2 จอ ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let animationId;
+        let animationIds = { 'localWaveform': null, 'remoteWaveform': null };
         
-        function drawFlatWaveform() {
-            cancelAnimationFrame(animationId);
-            const canvas = document.getElementById('mainWaveform');
+        function drawFlatWaveform(canvasId) {
+            cancelAnimationFrame(animationIds[canvasId]);
+            const canvas = document.getElementById(canvasId);
             if(!canvas) return;
             const ctx = canvas.getContext('2d');
             canvas.width = canvas.parentElement.clientWidth;
@@ -687,7 +701,7 @@
         }
 
         function initWaveform(canvasId, stream) {
-            cancelAnimationFrame(animationId);
+            cancelAnimationFrame(animationIds[canvasId]);
             const canvas = document.getElementById(canvasId);
             if(!canvas) return;
             const ctx = canvas.getContext('2d');
@@ -702,8 +716,8 @@
             const dataArray = new Uint8Array(bufferLength);
 
             function draw() {
-                if(!stream.active) { drawFlatWaveform(); return; }
-                animationId = requestAnimationFrame(draw);
+                if(!stream.active) { drawFlatWaveform(canvasId); return; }
+                animationIds[canvasId] = requestAnimationFrame(draw);
                 analyser.getByteFrequencyData(dataArray);
                 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
