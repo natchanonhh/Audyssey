@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Chat สุ่มคนคุย</title>
-    <!-- โหลดระบบหลัก -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -52,10 +51,9 @@
     </div>
 
     <script>
-        // ประกาศตัวแปรไว้ด้านนอก
         let sb = null;
         let user = null;
-        let localStream = null;
+        let localStream = null; 
         let peerConnection = null;
         let signalingChannel = null;
         const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
@@ -69,39 +67,30 @@
 
         window.onload = async function() {
             try {
-                // เช็คว่าโหลดสคริปต์สำเร็จไหม
-                if (typeof supabase === 'undefined') {
-                    throw new Error("โหลดเครื่องมือไม่สำเร็จ (อาจถูกบล็อกโดยเบราว์เซอร์)");
-                }
+                if (typeof supabase === 'undefined') throw new Error("โหลดเครื่องมือไม่สำเร็จ");
 
-                // เชื่อมต่อฐานข้อมูล
                 sb = supabase.createClient(
                     'https://vyvuhwnhgcmbokkshnxo.supabase.co',
                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dnVod25oZ2NtYm9ra3NobnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMjU1MDIsImV4cCI6MjEwMzYwMTUwMn0.FYzIS30XtiPNaBRxv6VaS6VOG4hRmP1rFljFINwm_do'
                 );
 
-                // ล็อกอิน
                 const { data, error } = await sb.auth.signInAnonymously();
                 if (error) throw error;
                 user = data.user;
 
-                // ถ้าผ่านถึงตรงนี้แปลว่าระบบพร้อมใช้งาน
                 userInfo.innerHTML = `👤 เข้าใช้งานแล้ว: Guest_${user.id.substring(0,4)}`;
                 startBtn.innerText = "1. เปิดไมค์ & เริ่มหาคนคุย";
                 startBtn.disabled = false;
 
-                // แอบสร้างโปรไฟล์ทิ้งไว้
                 sb.from('profiles').upsert({ id: user.id, country: 'Unknown' }).then();
-
             } catch (err) {
-                // ถ้าพัง ให้โชว์ Error สีแดงบอกบนหน้าเว็บเลย
                 userInfo.innerHTML = `<span style="color:red;">❌ ปัญหา: ${err.message}</span>`;
             }
         };
 
         // เริ่มหาคน
         async function startMatchmaking() {
-            if (!localStream) {
+            if (!localStream || !localStream.active) {
                 try {
                     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 } catch (err) {
@@ -113,6 +102,7 @@
             skipBtn.style.display = 'block';
             stopBtn.style.display = 'block';
             statusEl.innerText = '🔍 กำลังหาคน...';
+            statusEl.style.color = '#007bff';
 
             await sb.from('waiting_queue').delete().eq('user_id', user.id);
             const { data: queue } = await sb.from('waiting_queue').select('*').neq('user_id', user.id).limit(1);
@@ -127,7 +117,6 @@
             }
         }
 
-        // จัดการเสียง
         function setupWebRTC(roomId, isCaller) {
             if (peerConnection) peerConnection.close();
             peerConnection = new RTCPeerConnection(rtcConfig);
@@ -150,6 +139,15 @@
 
             signalingChannel.on('broadcast', { event: 'signal' }, async (msg) => {
                 const data = msg.payload;
+
+                // 🚨 รับข้อความว่าอีกฝั่งกดปัด หรือ กดเลิกคุย
+                if (data.action === 'partner_skipped') {
+                    console.log("อีกฝ่ายกดปัด... เริ่มหาคนใหม่ให้ทันที");
+                    cleanupConnection();
+                    startMatchmaking(); // เด้งไปหาคนใหม่ทันทีโดยไม่ต้องกดปุ่ม
+                    return;
+                }
+
                 if (data.offer && !isCaller) {
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
                     const answer = await peerConnection.createAnswer();
@@ -167,14 +165,33 @@
             });
         }
 
-        // ปุ่มควบคุม
-        async function skipMatch() { cleanup(); await sb.from('waiting_queue').delete().eq('user_id', user.id); startMatchmaking(); }
-        async function stopMatch() { 
-            cleanup(); await sb.from('waiting_queue').delete().eq('user_id', user.id);
-            startBtn.style.display = 'block'; skipBtn.style.display = 'none'; stopBtn.style.display = 'none';
-            statusEl.innerText = 'สถานะ: รอคำสั่ง'; statusEl.style.color = '#555';
+        async function skipMatch() { 
+            // 🚨 ส่งสัญญาณไปบอกอีกเครื่องว่าเรากดปัด
+            if (signalingChannel) {
+                signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'partner_skipped' } });
+            }
+            cleanupConnection(); 
+            await sb.from('waiting_queue').delete().eq('user_id', user.id); 
+            startMatchmaking(); 
         }
-        function cleanup() {
+
+        async function stopMatch() { 
+            // 🚨 ส่งสัญญาณไปบอกอีกเครื่องว่าเราเลิกคุย (ให้อีกเครื่องไปหาคนใหม่)
+            if (signalingChannel) {
+                signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'partner_skipped' } });
+            }
+            cleanupConnection(); 
+            await sb.from('waiting_queue').delete().eq('user_id', user.id);
+            
+            startBtn.style.display = 'block'; 
+            startBtn.innerText = "🔍 หาคนคุยใหม่ (ไมค์พร้อมแล้ว)";
+            skipBtn.style.display = 'none'; 
+            stopBtn.style.display = 'none';
+            statusEl.innerText = 'สถานะ: รอคำสั่ง'; 
+            statusEl.style.color = '#555';
+        }
+
+        function cleanupConnection() {
             if (peerConnection) { peerConnection.close(); peerConnection = null; }
             if (signalingChannel) { sb.removeChannel(signalingChannel); signalingChannel = null; }
             remoteAudio.srcObject = null;
