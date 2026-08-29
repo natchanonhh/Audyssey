@@ -4,39 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Chat สุ่มคนคุย</title>
-    <!-- ดึง Supabase มาใช้งาน -->
+    <!-- โหลดระบบหลัก -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- ส่วนตกแต่งหน้าตา (CSS) -->
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f4f4f9; color: #333;
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh; padding: 20px;
         }
         .container {
             background: white; padding: 30px; border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 100%; max-width: 400px; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center;
         }
         h1 { font-size: 22px; margin-bottom: 20px; color: #222; }
         .user-info {
             background: #e9ecef; padding: 15px; border-radius: 10px;
-            margin-bottom: 20px; font-weight: 500; font-size: 16px;
+            margin-bottom: 20px; font-weight: 500; font-size: 16px; word-wrap: break-word;
         }
-        .card {
-            border: 1px solid #eee; padding: 20px; border-radius: 10px; background: #fafafa;
-        }
+        .card { border: 1px solid #eee; padding: 20px; border-radius: 10px; background: #fafafa; }
         #status { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #555; }
         button {
             width: 100%; padding: 14px; margin: 8px 0; border: none;
-            border-radius: 8px; font-size: 18px; font-weight: bold;
-            cursor: pointer; transition: 0.2s;
+            border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer;
         }
-        button:active { transform: scale(0.97); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-primary { background: #007bff; color: white; }
         .btn-danger { background: #dc3545; color: white; }
@@ -45,107 +38,96 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎙️ ระบบสุ่มคนคุย (Voice Chat)</h1>
+        <h1>🎙️ ระบบสุ่มคนคุย</h1>
         
-        <!-- กล่องแสดงข้อมูลตัวเรา -->
-        <div id="userInfo" class="user-info">
-            กำลังเชื่อมต่อระบบ...
-        </div>
+        <div id="userInfo" class="user-info">กำลังเชื่อมต่อระบบ...</div>
 
-        <!-- กล่องควบคุมการคุย -->
         <div class="card">
             <p id="status">สถานะ: รอคำสั่ง</p>
             <button id="startBtn" class="btn-primary" disabled>รอสักครู่...</button>
-            <button id="skipBtn" class="btn-danger" style="display: none;">⏭️ ปัด / เปลี่ยนคน</button>
+            <button id="skipBtn" class="btn-danger" style="display: none;">⏭️ ปัดเปลี่ยนคน</button>
             <button id="stopBtn" class="btn-secondary" style="display: none;">⏹️ เลิกคุย</button>
         </div>
-        
-        <!-- ลำโพงสำหรับเล่นเสียงอีกฝั่ง -->
         <audio id="remoteAudio" autoplay></audio>
     </div>
 
-    <!-- ส่วนระบบทำงาน (JavaScript) -->
     <script>
-        // 1. ตั้งค่า Supabase ด้วย API ของคุณ
-        const SUPABASE_URL = 'https://vyvuhwnhgcmbokkshnxo.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dnVod25oZ2NtYm9ra3NobnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMjU1MDIsImV4cCI6MjEwMzYwMTUwMn0.FYzIS30XtiPNaBRxv6VaS6VOG4hRmP1rFljFINwm_do';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        // ประกาศตัวแปรไว้ด้านนอก
+        let sb = null;
         let user = null;
         let localStream = null;
         let peerConnection = null;
         let signalingChannel = null;
-
         const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
         const statusEl = document.getElementById('status');
         const startBtn = document.getElementById('startBtn');
         const skipBtn = document.getElementById('skipBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const userInfo = document.getElementById('userInfo');
         const remoteAudio = document.getElementById('remoteAudio');
 
-        // 2. ล็อกอินเมื่อเข้าเว็บ
-        async function initApp() {
+        window.onload = async function() {
             try {
-                // ล็อกอินแบบไม่ต้องกรอกรหัส
-                const { data, error } = await supabase.auth.signInAnonymously();
+                // เช็คว่าโหลดสคริปต์สำเร็จไหม
+                if (typeof supabase === 'undefined') {
+                    throw new Error("โหลดเครื่องมือไม่สำเร็จ (อาจถูกบล็อกโดยเบราว์เซอร์)");
+                }
+
+                // เชื่อมต่อฐานข้อมูล
+                sb = supabase.createClient(
+                    'https://vyvuhwnhgcmbokkshnxo.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dnVod25oZ2NtYm9ra3NobnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMjU1MDIsImV4cCI6MjEwMzYwMTUwMn0.FYzIS30XtiPNaBRxv6VaS6VOG4hRmP1rFljFINwm_do'
+                );
+
+                // ล็อกอิน
+                const { data, error } = await sb.auth.signInAnonymously();
                 if (error) throw error;
                 user = data.user;
 
-                // ดึงประเทศ (ถ้าดึงไม่ได้ให้ใช้ Unknown)
-                let country = 'Unknown';
-                try {
-                    const res = await fetch('https://ipapi.co/json/');
-                    country = (await res.json()).country_name || 'Unknown';
-                } catch (e) { console.log('ข้ามการดึงประเทศ'); }
-
-                // โชว์หน้าเว็บเลย ไม่ต้องรอเซฟลงฐานข้อมูล
-                document.getElementById('userInfo').innerHTML = `👤 Guest_${user.id.substring(0,4)} <br> 🌍 ประเทศ: ${country}`;
+                // ถ้าผ่านถึงตรงนี้แปลว่าระบบพร้อมใช้งาน
+                userInfo.innerHTML = `👤 เข้าใช้งานแล้ว: Guest_${user.id.substring(0,4)}`;
                 startBtn.innerText = "1. เปิดไมค์ & เริ่มหาคนคุย";
                 startBtn.disabled = false;
 
-                // แอบเซฟข้อมูลเงียบๆ เผื่อฐานข้อมูลยังไม่ได้สร้างจะได้ไม่ค้าง
-                supabase.from('profiles').upsert({ id: user.id, country: country }).then();
+                // แอบสร้างโปรไฟล์ทิ้งไว้
+                sb.from('profiles').upsert({ id: user.id, country: 'Unknown' }).then();
 
             } catch (err) {
-                document.getElementById('userInfo').innerHTML = `❌ ระบบขัดข้อง โปรดรีเฟรชหน้าเว็บ`;
-                console.error("Login Error:", err);
+                // ถ้าพัง ให้โชว์ Error สีแดงบอกบนหน้าเว็บเลย
+                userInfo.innerHTML = `<span style="color:red;">❌ ปัญหา: ${err.message}</span>`;
             }
-        }
+        };
 
-        // 3. เริ่มหาคู่
+        // เริ่มหาคน
         async function startMatchmaking() {
             if (!localStream) {
                 try {
-                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 } catch (err) {
-                    return alert('คุณต้องกด "อนุญาต" ไมโครโฟนก่อนครับ ระบบถึงจะทำงานได้!');
+                    return alert('ต้องกดอนุญาตไมโครโฟนก่อนครับ!');
                 }
             }
 
             startBtn.style.display = 'none';
             skipBtn.style.display = 'block';
             stopBtn.style.display = 'block';
-            statusEl.innerText = '🔍 กำลังหาคนว่าง...';
-            statusEl.style.color = '#007bff';
+            statusEl.innerText = '🔍 กำลังหาคน...';
 
-            // ลบตัวเองออกจากคิวเก่าก่อน (กันบั๊ก)
-            await supabase.from('waiting_queue').delete().eq('user_id', user.id);
-
-            // หาคนในคิว
-            const { data: queue } = await supabase.from('waiting_queue').select('*').neq('user_id', user.id).limit(1);
+            await sb.from('waiting_queue').delete().eq('user_id', user.id);
+            const { data: queue } = await sb.from('waiting_queue').select('*').neq('user_id', user.id).limit(1);
 
             if (queue && queue.length > 0) {
                 const partnerId = queue[0].user_id;
-                await supabase.from('waiting_queue').delete().eq('user_id', partnerId);
+                await sb.from('waiting_queue').delete().eq('user_id', partnerId);
                 setupWebRTC(partnerId, true);
             } else {
-                await supabase.from('waiting_queue').upsert({ user_id: user.id });
+                await sb.from('waiting_queue').upsert({ user_id: user.id });
                 setupWebRTC(user.id, false);
             }
         }
 
-        // 4. เชื่อมต่อ WebRTC
+        // จัดการเสียง
         function setupWebRTC(roomId, isCaller) {
             if (peerConnection) peerConnection.close();
             peerConnection = new RTCPeerConnection(rtcConfig);
@@ -164,7 +146,7 @@
                 }
             };
 
-            signalingChannel = supabase.channel(`room_${roomId}`);
+            signalingChannel = sb.channel(`room_${roomId}`);
 
             signalingChannel.on('broadcast', { event: 'signal' }, async (msg) => {
                 const data = msg.payload;
@@ -185,35 +167,22 @@
             });
         }
 
-        // 5. ปัดคนทิ้ง
-        async function skipMatch() {
-            cleanup();
-            await supabase.from('waiting_queue').delete().eq('user_id', user.id);
-            startMatchmaking();
+        // ปุ่มควบคุม
+        async function skipMatch() { cleanup(); await sb.from('waiting_queue').delete().eq('user_id', user.id); startMatchmaking(); }
+        async function stopMatch() { 
+            cleanup(); await sb.from('waiting_queue').delete().eq('user_id', user.id);
+            startBtn.style.display = 'block'; skipBtn.style.display = 'none'; stopBtn.style.display = 'none';
+            statusEl.innerText = 'สถานะ: รอคำสั่ง'; statusEl.style.color = '#555';
         }
-
-        // 6. เลิกคุย
-        async function stopMatch() {
-            cleanup();
-            await supabase.from('waiting_queue').delete().eq('user_id', user.id);
-            startBtn.style.display = 'block';
-            skipBtn.style.display = 'none';
-            stopBtn.style.display = 'none';
-            statusEl.innerText = 'สถานะ: รอคำสั่ง';
-            statusEl.style.color = '#555';
-        }
-
         function cleanup() {
             if (peerConnection) { peerConnection.close(); peerConnection = null; }
-            if (signalingChannel) { supabase.removeChannel(signalingChannel); signalingChannel = null; }
+            if (signalingChannel) { sb.removeChannel(signalingChannel); signalingChannel = null; }
             remoteAudio.srcObject = null;
         }
 
         startBtn.addEventListener('click', startMatchmaking);
         skipBtn.addEventListener('click', skipMatch);
         stopBtn.addEventListener('click', stopMatch);
-
-        window.onload = initApp;
     </script>
 </body>
 </html>
