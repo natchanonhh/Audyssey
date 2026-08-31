@@ -11,7 +11,7 @@
         
         body {
             background-color: #050505; color: #f0f0f0; height: 100vh; overflow: hidden;
-            user-select: none; /* ป้องกันการคลุมดำตอนปัดหน้าจอ */
+            user-select: none; 
         }
 
         .noise-bg {
@@ -45,21 +45,15 @@
         #chatScreen { display: none; width: 100vw; height: 100vh; position: relative; }
         .split-view { display: flex; width: 100%; height: 100%; }
         
-        /* Panel ซ้าย (ฝั่งคู่สนทนา / ตั้งค่า) */
-        .panel-left { 
-            flex: 1; position: relative; border-right: 1px solid rgba(255,255,255,0.15);
-        }
-
-        /* Panel ขวา (ฝั่งเรา) */
-        .panel-right { 
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
-            background-color: #000;
-        }
+        .panel-left { flex: 1; position: relative; border-right: 1px solid rgba(255,255,255,0.15); }
+        .panel-right { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background-color: #000; }
 
         .full-size { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
         .flex-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        /* UI สำหรับหน้า 2 (ฝั่งซ้ายตอนยังไม่เริ่มคุย) */
+        /* UI หน้า 2 (รอเริ่ม) */
+        .btn-back-home { position: absolute; top: 30px; left: 30px; padding: 8px 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #ddd; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s;}
+        .btn-back-home:hover { background: rgba(255, 255, 255, 0.15); color: #fff;}
         .logo-huge { font-size: 48px; font-weight: 700; margin-bottom: 15px; color: #fff; }
         .btn-settings { position: absolute; top: 30px; right: 30px; padding: 8px 20px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #ddd; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s;}
         .btn-settings:hover { background: rgba(255, 255, 255, 0.15); color: #fff;}
@@ -67,26 +61,38 @@
         .btn-info { padding: 14px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; flex: 1; max-width: 180px; justify-content: center; transition: 0.2s;}
         .btn-info:hover { background: rgba(255, 255, 255, 0.1); color: #fff;}
 
-        /* UI ฝั่งซ้ายตอนกำลังคุย (Matched) */
+        /* UI กำลังสนทนา (Matched) */
         .chat-logo { position: absolute; top: 30px; left: 30px; font-size: 24px; font-weight: 700; color: #fff;}
-        .partner-info { position: absolute; bottom: 40px; left: 30px; text-align: left; }
+        .partner-info { position: absolute; bottom: 40px; left: 30px; text-align: left; z-index: 10;}
         .status-text { font-size: 16px; color: #fff; margin-bottom: 8px; font-weight: 500; }
         .country-text { font-size: 14px; color: #ccc; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;}
         .btn-report { padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid #444; color: #aaa; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s;}
         .btn-report:hover { background: rgba(220, 53, 69, 0.15); border-color: #dc3545; color: #dc3545; }
 
-        /* คลื่นเสียง */
+        /* คลื่นเสียงแนวตั้งแบบใหม่ */
         .waveform-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: absolute; top: 0; left: 0; pointer-events: none;}
-        .waveform { width: 80%; height: 200px; max-width: 500px; }
+        .waveform { width: 85%; height: 250px; max-width: 500px; }
 
-        /* --- แก้ไข UI ฝั่งขวา (ตัวเรา) ตามภาพใหม่ --- */
-        .my-controls { position: absolute; bottom: 35px; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 40px; z-index: 10;}
+        /* ระบบข้อความ (Text Chat) */
+        .chat-log { position: absolute; bottom: 120px; left: 40px; right: 40px; height: 200px; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; pointer-events: none; z-index: 5; overflow: hidden;}
+        .chat-bubble { background: rgba(255, 255, 255, 0.15); color: #fff; padding: 10px 15px; border-radius: 12px; margin-top: 8px; max-width: 80%; font-size: 14px; backdrop-filter: blur(5px); animation: fadeIn 0.3s ease; }
+        .chat-bubble.remote { background: rgba(0, 123, 255, 0.2); align-self: flex-start; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* UI ฝั่งขวา (ตัวเรา) */
+        .my-controls { position: absolute; bottom: 30px; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 40px; z-index: 10;}
         .warning-text { font-size: 13px; color: #777; text-align: center; width: 100%; line-height: 1.6; margin-bottom: 20px; font-weight: 400;}
         
-        .bottom-actions { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-        .emoji-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .chat-input-bar { display: flex; width: 100%; max-width: 400px; gap: 10px; margin-bottom: 15px; }
+        .chat-input { flex: 1; padding: 12px 15px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: 0.2s;}
+        .chat-input:focus { border-color: #555; background: rgba(255, 255, 255, 0.12); }
+        .btn-send { padding: 10px 18px; background: #fff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 14px;}
+        .btn-send:hover { background: #ccc; }
+
+        .bottom-actions { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 400px;}
+        .emoji-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         
-        .emoji-btn { font-size: 24px; background: none; border: none; cursor: pointer; transition: transform 0.2s; opacity: 0.8;}
+        .emoji-btn { font-size: 22px; background: none; border: none; cursor: pointer; transition: transform 0.2s; opacity: 0.8;}
         .emoji-btn:hover { transform: scale(1.2); opacity: 1;}
         .emoji-btn:active { transform: scale(1.5); }
 
@@ -105,11 +111,8 @@
         .modal-content h2 { margin-bottom: 20px; text-align: center; font-size: 18px; font-weight: 600; color: #eee;}
         .modal-content label { display: block; font-size: 12px; color: #888; margin-bottom: 8px;}
         .modal-content select { width: 100%; padding: 12px; margin-bottom: 20px; background: #0a0a0a; color: #ddd; border: 1px solid #333; border-radius: 6px; font-size: 14px; outline: none;}
-        .modal-content select:focus { border-color: #555; }
         .modal-btn { width: 100%; padding: 14px; background: #eee; color: #000; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; transition: 0.2s;}
-        .modal-btn:hover { background: #fff; }
 
-        /* Responsive มือถือ */
         @media (max-width: 768px) {
             .split-view { flex-direction: column; }
             .panel-left, .panel-right { height: 50%; border-right: none; }
@@ -118,16 +121,13 @@
             .my-controls { padding: 0 15px; bottom: 15px; }
             .bottom-actions { justify-content: center; flex-direction: column; gap: 10px; }
             .emoji-group { justify-content: center; gap: 10px; }
-            .mic-btn { margin-left: 0; }
             
-            .partner-info { bottom: 15px; left: 15px; }
-            .warning-text { font-size: 11px; margin-bottom: 10px; }
-            .waveform { height: 120px; }
-            .profile-bar { bottom: 20px; padding: 0 10px; }
+            .partner-info { bottom: 10px; left: 15px; }
+            .warning-text { font-size: 10px; margin-bottom: 10px; }
+            .waveform { height: 150px; }
+            .profile-bar { bottom: 15px; padding: 0 10px; }
+            .chat-log { bottom: 140px; left: 15px; right: 15px; height: 120px; }
         }
-        
-        .floating-emoji { position: absolute; font-size: 40px; pointer-events: none; animation: floatUp 2s ease-out forwards; z-index: 50; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-150px) scale(1.5); } }
     </style>
 </head>
 <body>
@@ -158,8 +158,11 @@
             <!-- Panel ซ้าย (ฝั่งคู่สนทนา / หน้า 2) -->
             <div class="panel-left noise-bg">
                 
-                <!-- 1. หน้า 2 (สถานะตอนรอเริ่ม / Idle) -->
+                <!-- หน้า 2 (รอเริ่ม) -->
                 <div id="leftIdleUi" class="full-size flex-center">
+                    <button class="btn-back-home" onclick="goBackHome()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> หน้าแรก
+                    </button>
                     <button class="btn-settings" onclick="openModal('settingsModal')">ปรับแก้</button>
                     <div class="logo-huge">Audyssey.so</div>
                     <div class="online-count">
@@ -172,16 +175,16 @@
                     </div>
                 </div>
 
-                <!-- 2. หน้ากำลังสนทนา (Matched) -->
+                <!-- หน้ากำลังสนทนา (Matched) -->
                 <div id="leftMatchedUi" class="full-size" style="display: none;">
                     <div class="chat-logo">Audyssey.so</div>
                     <div class="waveform-container">
                         <canvas id="remoteWaveform" class="waveform"></canvas>
                     </div>
                     <div class="partner-info">
-                        <p class="status-text" id="chatStatusText">การเชื่อมต่อถูกตั้งขึ้นแล้ว</p>
-                        <p class="country-text" id="partnerCountryText">อินโดนีเซีย 🇮🇩</p>
-                        <button class="btn-report" onclick="reportUser()" id="reportBtn">รายงานบุคคล</button>
+                        <p class="status-text" id="chatStatusText">กำลังเชื่อมต่ออย่างรวดเร็ว...</p>
+                        <p class="country-text" id="partnerCountryText">รอการเชื่อมต่อ 🏳️</p>
+                        <button class="btn-report" onclick="reportUser()" id="reportBtn" style="display:none;">รายงานบุคคล</button>
                     </div>
                 </div>
 
@@ -191,18 +194,25 @@
             <div class="panel-right">
                 <div class="swipe-hint" id="swipeHint">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    ปัดซ้าย: หาคนคุย | ปัดขวา: หยุดและกลับ
+                    ปัดซ้าย: หาคนคุย | ปัดขวา: หยุดสนทนา
                 </div>
+
+                <!-- กล่องข้อความแชท -->
+                <div class="chat-log" id="chatLog"></div>
 
                 <div class="waveform-container">
                     <canvas id="localWaveform" class="waveform"></canvas>
                 </div>
                 
                 <div class="my-controls">
-                    <!-- ข้อความเตือน (ย้ายมาอยู่บนสุดและกางเต็มกว้าง) -->
                     <p class="warning-text">โดยการใช้เสียงแชทนี้ คุณยอมรับกฎของเรา ผู้ฝ่าฝืนกฎจะถูกแบน<br>พยายามให้มีการสนทนาของคุณปรากฏในช่องสนทนานี้</p>
                     
-                    <!-- ส่วนอีโมจิและไมโครโฟน -->
+                    <!-- ช่องพิมพ์แชท -->
+                    <div class="chat-input-bar">
+                        <input type="text" id="chatInput" class="chat-input" placeholder="พิมพ์ข้อความที่นี่..." onkeypress="handleEnter(event)">
+                        <button class="btn-send" onclick="sendTextMessage()">ส่ง</button>
+                    </div>
+
                     <div class="bottom-actions">
                         <div class="emoji-group">
                             <button class="emoji-btn" onclick="sendEmoji('💭')">💭</button>
@@ -215,9 +225,7 @@
                         </div>
 
                         <button id="micToggleBtn" class="mic-btn mic-off" onclick="toggleMic()" title="คลิกเพื่ออนุญาตไมโครโฟน">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
                         </button>
                     </div>
                 </div>
@@ -250,12 +258,8 @@
                 <option value="male">เฉพาะผู้ชาย</option>
                 <option value="female">เฉพาะผู้หญิง</option>
             </select>
-
             <label>ต้องการสนทนากับ (ประเทศ)</label>
-            <select id="prefCountrySelect">
-                <option value="all">ทั่วโลก</option>
-            </select>
-            
+            <select id="prefCountrySelect"><option value="all">ทั่วโลก</option></select>
             <button class="modal-btn" onclick="saveSettings()">บันทึกการตั้งค่า</button>
         </div>
     </div>
@@ -375,7 +379,7 @@
             ]
         };
 
-        // --- 2. การตั้งค่าระบบ Supabase ---
+        // --- 2. การตั้งค่าระบบ Supabase ด้วยเสถียรภาพสูงสุด ---
         const SUPABASE_URL = 'https://vyvuhwnhgcmbokkshnxo.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dnVod25oZ2NtYm9ra3NobnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMjU1MDIsImV4cCI6MjEwMzYwMTUwMn0.FYzIS30XtiPNaBRxv6VaS6VOG4hRmP1rFljFINwm_do';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -387,7 +391,14 @@
         let presenceChannel = null;
         let currentRoomId = null;
         let partnerId = null;
-        const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+        
+        // เพิ่มเซิร์ฟเวอร์ STUN สำหรับความเสถียรของ WebRTC
+        const rtcConfig = { 
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ] 
+        };
 
         let myCountry = 'Unknown';
         let myCountryFlag = '🏳️';
@@ -398,15 +409,15 @@
 
         const homeScreen = document.getElementById('homeScreen');
         const chatScreen = document.getElementById('chatScreen');
-        
         const leftIdleUi = document.getElementById('leftIdleUi');
         const leftMatchedUi = document.getElementById('leftMatchedUi');
-        
         const chatStatusText = document.getElementById('chatStatusText');
         const partnerCountryText = document.getElementById('partnerCountryText');
         const remoteAudio = document.getElementById('remoteAudio');
         const swipeHint = document.getElementById('swipeHint');
         const countrySelect = document.getElementById('prefCountrySelect');
+        const chatLog = document.getElementById('chatLog');
+        const chatInput = document.getElementById('chatInput');
 
         // --- 3. โหลดหน้าเว็บ และดึงข้อมูล ---
         window.onload = async function() {
@@ -478,6 +489,12 @@
             drawFlatWaveform('localWaveform'); 
         }
 
+        function goBackHome() {
+            stopMatchAndReturn(); // หยุดสายถ้ามี
+            chatScreen.style.display = 'none';
+            homeScreen.style.display = 'flex';
+        }
+
         // --- 5. จัดการไมโครโฟน ---
         async function toggleMic() {
             const micBtn = document.getElementById('micToggleBtn');
@@ -507,21 +524,12 @@
             micBtn.classList.toggle('mic-off', isMicMuted);
         }
 
-        // --- 6. ระบบปัดหน้าจอ (Swipe Left / Right) ---
-        let touchstartX = 0;
-        let touchendX = 0;
-
+        // --- 6. ระบบปัดหน้าจอ (Swipe) ขวา/ซ้าย รวดเร็ว ---
+        let touchstartX = 0; let touchendX = 0;
         function checkSwipe() {
             let deltaX = touchstartX - touchendX;
-            if (deltaX > 50) {
-                // ปัดไปทางซ้าย -> ค้นหาคนใหม่
-                swipeHint.style.display = 'none';
-                skipMatchAndSearch();
-            } else if (deltaX < -50) {
-                // ปัดไปทางขวา -> หยุดสนทนา และกลับไปหน้า 2 (Idle)
-                swipeHint.style.display = 'none';
-                stopMatchAndReturn();
-            }
+            if (deltaX > 50) { swipeHint.style.display = 'none'; skipMatchAndSearch(); } // ซ้าย = หาคน
+            else if (deltaX < -50) { swipeHint.style.display = 'none'; stopMatchAndReturn(); } // ขวา = กลับหน้า 2
         }
 
         document.getElementById('chatScreen').addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
@@ -535,21 +543,24 @@
             else if(dX < -50) { swipeHint.style.display = 'none'; stopMatchAndReturn(); }
         });
 
-        // --- 7. ระบบค้นหาและหยุดสนทนา ---
+        // --- 7. ระบบค้นหาแบบเสถียร (Connect instantly, อนุญาตให้เจอคนเดิมได้) ---
         async function startMatchmaking() {
             setLeftPanelState('searching');
             document.getElementById('reportBtn').style.display = 'none';
-            chatStatusText.innerText = 'กำลังค้นหาการเชื่อมต่อ...';
-            partnerCountryText.innerText = 'รอการจับคู่';
+            chatStatusText.innerText = 'กำลังเชื่อมต่ออย่างรวดเร็ว...';
+            partnerCountryText.innerText = 'รอการเชื่อมต่อ 🏳️';
             drawFlatWaveform('remoteWaveform');
+            chatLog.innerHTML = ''; // ล้างแชทเก่า
 
-            await sb.from('waiting_queue').delete().eq('user_id', user.id);
+            if (user) await sb.from('waiting_queue').delete().eq('user_id', user.id);
 
+            // ค้นหาโดยไม่ตัดตัวเองออก เพื่อให้สามารถเจอคนเดิมได้ถ้าไม่มีคนอื่นจริงๆ
             let query = sb.from('waiting_queue').select('*').neq('user_id', user.id);
             if (prefGender !== 'all') query = query.eq('user_gender', prefGender);
             if (prefCountry !== 'all') query = query.eq('user_country', prefCountry);
 
-            const { data: queue } = await query.limit(1);
+            // เรียงลำดับคนที่รอนานที่สุด
+            const { data: queue } = await query.order('joined_at', { ascending: true }).limit(1);
 
             if (queue && queue.length > 0) {
                 partnerId = queue[0].user_id;
@@ -577,7 +588,7 @@
 
             peerConnection.ontrack = (event) => {
                 remoteAudio.srcObject = event.streams[0];
-                chatStatusText.innerText = 'การเชื่อมต่อถูกตั้งขึ้นแล้ว';
+                chatStatusText.innerText = 'การเชื่อมต่อสำเร็จ กำลังสนทนา';
                 document.getElementById('reportBtn').style.display = 'block';
                 initWaveform('remoteWaveform', event.streams[0]);
             };
@@ -586,13 +597,21 @@
                 if (event.candidate && signalingChannel) signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { candidate: event.candidate } });
             };
 
-            signalingChannel = sb.channel(`room_${roomId}`);
+            // อัพเดตสถานะ WebRTC เพื่อความเสถียร
+            peerConnection.oniceconnectionstatechange = () => {
+                if(peerConnection.iceConnectionState === 'disconnected' || peerConnection.iceConnectionState === 'failed') {
+                    // หากสายหลุด ให้ค้นหาใหม่ทันที
+                    skipMatchAndSearch();
+                }
+            };
 
+            signalingChannel = sb.channel(`room_${roomId}`);
             signalingChannel.on('broadcast', { event: 'signal' }, async (msg) => {
                 const data = msg.payload;
                 
                 if (data.action === 'skip') { cleanupConnection(); startMatchmaking(); return; }
                 if (data.action === 'emoji') { showEmojiOnScreen(data.emoji, 'left'); return; }
+                if (data.action === 'text') { appendChatMessage(data.text, 'remote'); return; }
                 if (data.action === 'info' && !isCaller) { partnerCountryText.innerText = data.country; }
 
                 if (data.offer && !isCaller) {
@@ -613,20 +632,20 @@
             });
         }
 
-        // ปัดซ้าย (ค้นหาใหม่)
-        async function skipMatchAndSearch() { 
+        function skipMatchAndSearch() { 
+            // เปลี่ยน UI เคลียร์สายทันที ไม่ต้องรอ
+            setLeftPanelState('searching');
+            chatStatusText.innerText = 'กำลังเปลี่ยนคู่สนทนา...';
             if (signalingChannel) signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'skip' } });
             cleanupConnection(); 
-            if (user) await sb.from('waiting_queue').delete().eq('user_id', user.id); 
             startMatchmaking(); 
         }
 
-        // ปัดขวา (หยุดการสนทนา กลับไปหน้า 2)
-        async function stopMatchAndReturn() {
+        function stopMatchAndReturn() {
             if (signalingChannel) signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'skip' } });
             cleanupConnection();
-            if (user) await sb.from('waiting_queue').delete().eq('user_id', user.id); 
-            setLeftPanelState('idle'); // กลับมาหน้า 2 (โลโก้อยู่ตรงกลาง)
+            if (user) sb.from('waiting_queue').delete().eq('user_id', user.id).then(); 
+            setLeftPanelState('idle'); 
         }
 
         function cleanupConnection() {
@@ -646,7 +665,27 @@
             }
         }
 
-        // --- 8. อีโมจิ ---
+        // --- 8. ระบบแชทข้อความและอีโมจิ ---
+        function handleEnter(e) { if (e.key === 'Enter') sendTextMessage(); }
+        
+        function sendTextMessage() {
+            const text = chatInput.value.trim();
+            if (!text || !signalingChannel) return;
+            appendChatMessage(text, 'local');
+            signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'text', text: text } });
+            chatInput.value = '';
+        }
+
+        function appendChatMessage(text, type) {
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${type}`;
+            bubble.innerText = text;
+            chatLog.appendChild(bubble);
+            chatLog.scrollTop = chatLog.scrollHeight;
+            // ซ่อนข้อความอัตโนมัติหลังจาก 5 วินาที
+            setTimeout(() => { bubble.style.opacity = '0'; setTimeout(() => bubble.remove(), 300); }, 5000);
+        }
+
         function sendEmoji(emoji) {
             showEmojiOnScreen(emoji, 'right');
             if (signalingChannel) signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'emoji', emoji: emoji } });
@@ -680,7 +719,7 @@
             closeModal('settingsModal');
         }
 
-        // --- 10. คลื่นเสียง (Waveform) แยก 2 จอ ---
+        // --- 10. คลื่นเสียงแนวตั้งแบบมืออาชีพ (อ้างอิง IMG_0395.jpeg) ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let animationIds = { 'localWaveform': null, 'remoteWaveform': null };
         
@@ -692,12 +731,18 @@
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height/2);
-            ctx.lineTo(canvas.width, canvas.height/2);
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
+            
+            ctx.fillStyle = '#333';
+            let barWidth = 3;
+            let gap = 3;
+            let barCount = Math.floor(canvas.width / (barWidth + gap));
+            
+            for(let i = 0; i < barCount; i++) {
+                let h = 2; // Flat height
+                let x = i * (barWidth + gap);
+                let y = (canvas.height - h) / 2;
+                ctx.fillRect(x, y, barWidth, h);
+            }
         }
 
         function initWaveform(canvasId, stream) {
@@ -721,22 +766,32 @@
                 analyser.getByteFrequencyData(dataArray);
                 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#fff';
-                ctx.beginPath();
+                ctx.fillStyle = '#fff';
                 
-                let sliceWidth = canvas.width * 1.0 / bufferLength;
-                let x = 0;
+                let barWidth = 3; 
+                let gap = 3;
+                let barCount = Math.floor(canvas.width / (barWidth + gap));
+                let step = Math.floor(bufferLength / barCount);
                 
-                for(let i = 0; i < bufferLength; i++) {
-                    let v = dataArray[i] / 128.0; 
-                    let y = v * canvas.height / 2;
-                    if(i === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                    x += sliceWidth;
+                for(let i = 0; i < barCount; i++) {
+                    let sum = 0;
+                    for(let j=0; j<step; j++) {
+                        sum += dataArray[(i*step) + j] || 0;
+                    }
+                    let avg = sum / step;
+                    
+                    // ปรับความสูงของบาร์ให้สมูทคล้ายภาพต้นฉบับ
+                    let multiplier = Math.sin((i / barCount) * Math.PI);
+                    let v = (avg / 255.0) * multiplier; 
+                    
+                    let h = v * canvas.height * 0.85; // สูงสุด 85% ของจอ
+                    if (h < 2) h = 2; 
+                    
+                    let x = i * (barWidth + gap);
+                    let y = (canvas.height - h) / 2; // วางกึ่งกลางแนวตั้ง
+                    
+                    ctx.fillRect(x, y, barWidth, h);
                 }
-                ctx.lineTo(canvas.width, canvas.height/2);
-                ctx.stroke();
             }
             draw();
         }
